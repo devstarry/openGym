@@ -165,50 +165,58 @@ describe('setLabel', () => {
 })
 
 describe('effortOf', () => {
-  it('reads the scale a profile logs', () => {
+  it('reads the scale a profile logs, and logs RIR when it never chose', () => {
     expect(effortOf({ effort: 'rpe' })).toBe('rpe')
     expect(effortOf({ effort: 'rir' })).toBe('rir')
     expect(effortOf({ effort: 'none' })).toBe('none')
-    expect(effortOf({})).toBe('none')
+    // My Gym: a profile with no setting logs RIR
+    expect(effortOf({})).toBe('rir')
   })
 
-  it('keeps the column for a profile still carrying the old showRir flag', () => {
+  it('logs RIR on an unset profile whatever the old showRir flag says', () => {
     expect(effortOf({ showRir: true })).toBe('rir')
+    expect(effortOf({ showRir: false })).toBe('rir')
     // what a stored profile actually looks like once it is overlaid on DEF
     expect(effortOf({ effort: null, showRir: true })).toBe('rir')
-    expect(effortOf({ effort: null })).toBe('none')
-    expect(effortOf({ showRir: false })).toBe('none')
-    // once the new setting is chosen it wins, whatever the old flag said
+    expect(effortOf({ effort: null, showRir: false })).toBe('rir')
+    expect(effortOf({ effort: null })).toBe('rir')
+    // a chosen setting wins, whatever the old flag said: an explicit 'none' still turns it off
     expect(effortOf({ showRir: true, effort: 'rpe' })).toBe('rpe')
     expect(effortOf({ showRir: true, effort: 'none' })).toBe('none')
+    expect(effortOf({ showRir: false, effort: 'none' })).toBe('none')
+  })
+
+  it('logs nothing when the Effort module is off', () => {
+    expect(effortOf({ modules: { effort: false } })).toBe('none')
+    expect(effortOf({ modules: { effort: false }, effort: 'rpe' })).toBe('none')
   })
 
   // The store cannot be imported here (it reaches for `navigator` at module load), so the
   // overlay it performs is reproduced literally: stored profile spread over the defaults.
-  // DEF.effort is null precisely so this lands on the showRir fallback rather than on 'none'.
+  // DEF.effort is null, so a profile that never chose lands on the RIR default.
   const overlay = stored => ({ unit: 'kg', effort: null, ...stored })
 
   it('survives the overlay every load path performs', () => {
-    // upgrading with the column on: local state, a server pull and a restored backup all
-    // arrive as a stored object spread over the defaults, and all must keep the column
+    // local state, a server pull and a restored backup all arrive as a stored object spread
+    // over the defaults, and a profile that never chose logs RIR in every case
     expect(effortOf(overlay({ showRir: true }))).toBe('rir')
-    expect(effortOf(overlay({ showRir: false }))).toBe('none')
+    expect(effortOf(overlay({ showRir: false }))).toBe('rir')
     // a profile predating the RIR feature entirely
-    expect(effortOf(overlay({}))).toBe('none')
-    // and one written by this version
+    expect(effortOf(overlay({}))).toBe('rir')
+    // and ones written by this version
     expect(effortOf(overlay({ effort: 'rpe' }))).toBe('rpe')
+    expect(effortOf(overlay({ effort: 'none' }))).toBe('none')
     // an old backup restored over a profile that had already chosen: the file wins, because
     // an import replaces state wholesale rather than merging
     expect(effortOf(overlay({ showRir: true, effort: undefined }))).toBe('rir')
   })
 
-  it('is not fooled by a junk value', () => {
-    expect(effortOf({ effort: 'rpe10' })).toBe('none')
-    expect(effortOf({ effort: 'RIR' })).toBe('none')
-    expect(effortOf({ effort: 'f' })).toBe('none')
-    expect(effortOf(null)).toBe('none')
-    expect(effortOf(undefined)).toBe('none')
-    // a junk value with the old flag still set falls back rather than showing nothing
+  it('is not fooled by a junk value, which falls back to RIR', () => {
+    expect(effortOf({ effort: 'rpe10' })).toBe('rir')
+    expect(effortOf({ effort: 'RIR' })).toBe('rir')
+    expect(effortOf({ effort: 'f' })).toBe('rir')
+    expect(effortOf(null)).toBe('rir')
+    expect(effortOf(undefined)).toBe('rir')
     expect(effortOf({ effort: 'nope', showRir: true })).toBe('rir')
   })
 })
@@ -324,8 +332,12 @@ describe('logging effort across a session', () => {
 })
 
 describe('defaultConfig', () => {
-  it('gives each mode a sensible starting point', () => {
+  it('gives each mode a sensible starting point, a loaded lift on an 8-12 range', () => {
+    // LIFT is a wheel roller: not bodyweight, but nothing to load either, so it keeps 3 × 10
     expect(defaultConfig(LIFT)).toEqual({ sets: 3, reps: 10, weight: 0, mode: 'reps' })
+    const BARBELL = EXDB.find(e => e.bp !== 'cardio' && e.eq === 'barbell').id
+    expect(defaultConfig(BARBELL)).toEqual({ sets: 3, reps: 12, repsMin: 8, weight: 0, mode: 'reps' })
+    expect(defaultConfig(BARBELL, 'time')).toEqual({ sets: 3, sec: 45, weight: 0, mode: 'time' })
     expect(defaultConfig(CARDIO)).toEqual({ sets: 1, min: 20, speed: 8 })
     expect(defaultConfig(LIFT, 'time')).toEqual({ sets: 3, sec: 45, weight: 0, mode: 'time' })
   })

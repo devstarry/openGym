@@ -163,9 +163,10 @@ describe('the weigh-in from the watch', () => {
 
   it('the watch is told the app\'s language, whether to ask, and the last weight', async () => {
     const { watchExtras } = await import('./watch-sync.js')
-    expect(watchExtras({ weighIn: false, bodyweight: [{ d: '2026-10-01', w: 80 }, { d: '2026-10-10', w: 79.5 }] }))
+    // effort: 'none' keeps the effort tile (its own test) out of these
+    expect(watchExtras({ effort: 'none', weighIn: false, bodyweight: [{ d: '2026-10-01', w: 80 }, { d: '2026-10-10', w: 79.5 }] }))
       .toEqual({ lang: 'en', weighIn: false, lastBw: 79.5 })
-    expect(watchExtras({})).toEqual({ lang: 'en', weighIn: true })
+    expect(watchExtras({ effort: 'none' })).toEqual({ lang: 'en', weighIn: true })
   })
 })
 

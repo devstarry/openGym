@@ -141,8 +141,9 @@ describe('effort in a backup', () => {
   })
 
   it('restores a backup written before the setting existed', () => {
-    // the old flag survives the round trip and still decides the column
+    // a backup that never chose logs RIR, the My Gym default, whatever the old flag said
     expect(effortOf(roundTrip({ showRir: true, workouts: [], routines: [] }))).toBe('rir')
-    expect(effortOf(roundTrip({ workouts: [], routines: [] }))).toBe('none')
+    expect(effortOf(roundTrip({ showRir: false, workouts: [], routines: [] }))).toBe('rir')
+    expect(effortOf(roundTrip({ workouts: [], routines: [] }))).toBe('rir')
   })
 })

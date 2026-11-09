@@ -53,7 +53,8 @@ describe('the same exercise in two routines of one combined day', () => {
   const B = { id: 'B', name: 'Light', ex: [{ id: '0025', sets: 2, reps: 15, weight: 40 }] }
 
   it('opens each routine from its own entry of the saved workout', () => {
-    const state = { unit: 'kg', exWeights: {}, routines: [A, B], workouts: [] }
+    // linear progression pinned: the expected numbers are its +2.5 kg at the same reps
+    const state = { unit: 'kg', progDefault: 'linear', exWeights: {}, routines: [A, B], workouts: [] }
     const { entries, routineIds } = buildCombinedEntries(state, ['A', 'B'])
     const active = { id: 'w1', d: '2026-08-01', start: 1, routineIds, name: 'Heavy + Light', entries: entries.map(e => ({ ...e, sets: e.sets.map(s => ({ ...s, done: true })) })) }
     state.workouts.push(buildCompletedWorkout(active, { end: 2 }))

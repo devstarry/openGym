@@ -16,7 +16,8 @@ describe('the scale the watch is told about', () => {
     expect('autoHolds' in watchExtras({})).toBe(false)
     expect(watchExtras({ showRir: true }).effort).toBe('rir')
     expect('effort' in watchExtras({ effort: 'none' })).toBe(false)
-    expect('effort' in watchExtras({})).toBe(false)
+    // a profile that never chose logs RIR (My Gym's default), so it gets the tile too
+    expect(watchExtras({}).effort).toBe('rir')
   })
 })
 

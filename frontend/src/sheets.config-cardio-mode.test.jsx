@@ -15,7 +15,8 @@ import { exConfigSheet } from './sheets.jsx'
 const HIGH_KNEES = '3556'
 const mounted = []
 function open(ex, existing) {
-  useStore.setState({ S: structuredClone(DEF), user: null })
+  // linear pinned, so Reps shows a single Reps stepper rather than double progression's range
+  useStore.setState({ S: { ...structuredClone(DEF), progDefault: 'linear' }, user: null })
   const onSave = vi.fn()
   exConfigSheet(ex, existing, onSave, null, null)
   const sheet = useUI.getState().sheets.at(-1)

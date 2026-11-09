@@ -62,7 +62,8 @@ describe('the exercise sheet in a freestyle workout', () => {
 
   it('keeps the rule picker everywhere else', () => {
     const host = open({}, {})
-    expect(host.textContent).toMatch(/Follow the routine \(Linear progression\)/)
+    // a profile that never chose follows My Gym's default, double progression
+    expect(host.textContent).toMatch(/Follow the routine \(Double progression\)/)
   })
 })
 

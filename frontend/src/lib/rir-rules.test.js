@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   RIR_MAX, STALLS_TO_DELOAD, DELOAD_EVERY_WEEKS, rirOf, decideNext, stepLoad, nextSet,
-  daysBetween, deloadDue, inDeloadWeek, deloadWeekPlan,
+  daysBetween, deloadDue, inDeloadWeek, deloadWeekOn, deloadWeekPlan,
 } from './rir-rules.js'
 
 const range = { repsMin: 8, reps: 12 }
@@ -221,6 +221,23 @@ describe('inDeloadWeek', () => {
     expect(inDeloadWeek('2026-11-16', '2026-11-09')).toBe(false)
     expect(inDeloadWeek('2026-11-08', '2026-11-09')).toBe(false)
     expect(inDeloadWeek('2026-11-09', null)).toBe(false)
+  })
+})
+
+describe('deloadWeekOn', () => {
+  it('is the deload week from its start, for seven days', () => {
+    expect(deloadWeekOn({ start: '2026-11-09' }, '2026-11-09')).toBe(true)
+    expect(deloadWeekOn({ start: '2026-11-09' }, '2026-11-15')).toBe(true)
+    expect(deloadWeekOn({ start: '2026-11-09' }, '2026-11-16')).toBe(false)
+  })
+  it('ended early: not from that day on', () => {
+    expect(deloadWeekOn({ start: '2026-11-09', ended: '2026-11-11' }, '2026-11-10')).toBe(true)
+    expect(deloadWeekOn({ start: '2026-11-09', ended: '2026-11-11' }, '2026-11-11')).toBe(false)
+    expect(deloadWeekOn({ start: '2026-11-09', ended: '2026-11-11' }, '2026-11-13')).toBe(false)
+  })
+  it('no week: never', () => {
+    expect(deloadWeekOn(null, '2026-11-09')).toBe(false)
+    expect(deloadWeekOn({}, '2026-11-09')).toBe(false)
   })
 })
 

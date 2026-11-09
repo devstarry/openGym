@@ -19,7 +19,8 @@ const rowsOf = rid => S().active.entries.filter(e => e.rid === rid && e.id === B
 
 function install(routines, extra = {}) {
   const st = clone(DEF)
-  Object.assign(st, { routines, week: { 1: ['A'] }, active: null, workouts: [], weighIn: false }, extra)
+  // linear progression pinned: the rows below are linear's +2.5 kg at the plan's reps
+  Object.assign(st, { routines, week: { 1: ['A'] }, active: null, workouts: [], weighIn: false, progDefault: 'linear' }, extra)
   useStore.setState({ S: st, user: null })
 }
 

@@ -98,7 +98,8 @@ export const MAX_BW_SETS = 6
 // The profile's rule for a reps exercise whose routine sets none (Settings → Fine-tuning,
 // `S.progDefault`): linear, the way the app always behaved, unless the lifter picked another.
 // Someone who sets every weight by hand picks Off once instead of in every routine.
-export const profileRule = S => (POLICIES_FOR.reps.includes(S?.progDefault) ? S.progDefault : 'linear')
+// My Gym: double progression (read with RIR, lib/rir-rules.js) unless the profile picked another.
+export const profileRule = S => (POLICIES_FOR.reps.includes(S?.progDefault) ? S.progDefault : 'double')
 
 // The policy in force for one exercise: its own override, else the routine's default, else
 // the mode's default: for reps the profile's (`fallback`, profileRule above), linear without one.

@@ -4,7 +4,7 @@ import { isOn } from './modules.js'
 import { todayISO, isoOf, weekKey, weekStartOf, fmtNum } from './format.js'
 import { fmtSpeed } from './speed.js'
 import { hasIncline, inclineFrom } from './incline.js'
-import { isCardio, isHold, isOneLimb, isBodyweightEq, isAssisted, betterWeight } from './exercises.js'
+import { isCardio, isHold, isOneLimb, isBodyweightEq, isAssisted, isLoadedEq, betterWeight } from './exercises.js'
 import { barWeightFor } from './bar.js'
 import { phaseForSet, modeForSet, modeForEntry, isWarmupRow, isFailureSet, isDropSet, isRestPauseSet, normalizeMode, completedVolumeOf, hasCompletedWork, nextDropWeight, splitBurstReps, makeSideSet, isSideSet, syncSideAggregate, WEIGHT_ORIGIN_MANUAL, dropsOf, clustersOf } from './workout-model.js'
 import { backoffAt, backoffStepOf, backoffWeights } from './backoff.js'
@@ -132,7 +132,8 @@ export const capEffort = (kind, v) =>
 export const effortOf = S => {
   if (S && !isOn(S, 'effort')) return 'none'
   const e = S && S.effort
-  return e === 'none' || EFFORT[e] ? e : (S && S.showRir ? 'rir' : 'none')
+  // My Gym logs RIR unless the profile chose otherwise: an explicit 'none' or 'rpe' still wins.
+  return e === 'none' || EFFORT[e] ? e : 'rir'
 }
 // The "(RIR 2)" / "(RPE 8)" tail on a set summary, empty when nothing was logged.
 const effortTail = s => {
@@ -219,6 +220,9 @@ export function defaultConfig(id, mode) {
   // the flag existed and a plan file gains nothing it does not need.
   const bw = isBodyweightEq(id) ? { bodyweight: true } : {}
   if (m === 'time') return { sets: 3, sec: 45, weight: 0, mode: 'time', ...bw }
+  // My Gym: a loaded lift (a bar, a bell, a machine, a cable) starts on an 8-12 rep range for double
+  // progression (lib/rir-rules.js). Everything else (bodyweight, a jump rope) keeps 3 × 10.
+  if (!bw.bodyweight && !isCardio(id) && isLoadedEq(id)) return { sets: 3, reps: 12, repsMin: 8, weight: 0, mode: 'reps' }
   return { sets: 3, reps: 10, weight: 0, mode: 'reps', ...bw }
 }
 // What an exercise picked from the library starts with: `defaultConfig`, and per side for a

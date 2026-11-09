@@ -256,8 +256,13 @@ export const DEF = {
   // 'any' is its newest session in any workout. Absent reads as 'routine'.
   lastFrom: 'routine',
   // The rule of a reps exercise whose routine sets none (Settings → Fine-tuning, lib/progression.js
-  // profileRule). Absent reads as 'linear' too, the way the app always behaved.
-  progDefault: 'linear',
+  // profileRule). My Gym: double progression, read with RIR (lib/rir-rules.js); absent reads as it too.
+  progDefault: 'double',
+  // My Gym's deload week (lib/rir-rules.js, components/DeloadCard.jsx): { start, ended? } as
+  // 'YYYY-MM-DD' while one runs or after it, and the day the offer was last put off. Both absent until
+  // the first one; sessions built inside the week are lighter and do not count for progression.
+  deloadWeek: null,
+  deloadSkipped: null,
   // Per-language choice for translated exercise names: whether the original English name is
   // shown in parentheses next to the translation. Map { '<lang>': boolean }; a missing key
   // (any profile written before this setting existed) reads as shown.

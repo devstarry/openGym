@@ -26,7 +26,8 @@ describe('jumping-jack exercise settings', () => {
   beforeEach(() => {
     globalThis.IS_REACT_ACT_ENVIRONMENT = true
     useUI.setState({ sheets: [] })
-    useStore.setState(s => ({ S: { ...s.S, unit: 'kg' } }))
+    // linear pinned, so the sheet shows a single Reps stepper rather than double progression's range
+    useStore.setState(s => ({ S: { ...s.S, unit: 'kg', progDefault: 'linear' } }))
   })
   afterEach(() => act(() => mounted.splice(0).forEach(([root, host]) => { root.unmount(); host.remove() })))
 

@@ -59,8 +59,8 @@ describe('routine progression wording (#294)', () => {
     expect(note()).toBe(POLICY_DESC.off + ' Applies to every exercise in this routine that does not set its own rule.')
     act(() => root.unmount())
     container.remove()
-    renderRoutine({})
-    expect(note().startsWith(POLICY_DESC.linear)).toBe(true)
+    renderRoutine({})   // no rule of its own: the profile's default, double progression in My Gym
+    expect(note().startsWith(POLICY_DESC.double)).toBe(true)
   })
 
   it('once it is a deload routine, says the progression choice does not apply to it', () => {

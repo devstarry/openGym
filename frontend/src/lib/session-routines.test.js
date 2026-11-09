@@ -191,7 +191,8 @@ describe('a routine saved from a planned session', () => {
 
   it('takes the planned reps when the session started from last time\'s', () => {
     const source = { id: 'C', name: 'Legs', ex: [{ id: BENCH, sets: 2, reps: 5, weight: 100 }] }
-    const st = { ...stateOf([source]), startFrom: 'last' }
+    // linear pinned: under double progression 8 reps on a 5 target would move the weight up and reset the reps
+    const st = { ...stateOf([source]), startFrom: 'last', progDefault: 'linear' }
     train(st, source, { r: 8 })
     const saved = train(st, source)   // opened at last time's 8, not the plan's 5
     expect(work(saved.entries[0]).map(s => s.r)).toEqual([8, 8])

@@ -11,10 +11,11 @@ const clean = progDefault => ({
 const cfg = { id: LIFT, sets: 3, reps: 5, weight: 60 }
 
 describe('the profile’s default progression rule', () => {
-  it('is linear when the profile has none, or an unknown one', () => {
-    expect(profileRule({})).toBe('linear')
-    expect(profileRule(null)).toBe('linear')
-    expect(profileRule({ progDefault: 'time' })).toBe('linear')
+  it('is double when the profile has none, or an unknown one', () => {
+    expect(profileRule({})).toBe('double')
+    expect(profileRule(null)).toBe('double')
+    expect(profileRule({ progDefault: 'time' })).toBe('double')
+    expect(profileRule({ progDefault: 'linear' })).toBe('linear')
     expect(profileRule({ progDefault: 'off' })).toBe('off')
     expect(profileRule({ progDefault: 'double' })).toBe('double')
   })

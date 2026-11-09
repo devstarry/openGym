@@ -1566,6 +1566,22 @@ button.whdr-gym{color:var(--acc-ink);cursor:pointer}
 .btn.addset{width:100%;justify-content:center;min-height:var(--tap);margin-top:var(--sp-1);
   background:none;border:1px dashed var(--surface-3);border-radius:var(--r);color:var(--acc-ink)}
 .btn.addset:active{background:var(--surface-2)}
+/* One tap for effort: the strip under a set just ticked (0, 1, 2, 3, 4+ reps left), each chip edged in
+   its effort colour, and the line under a row the last rating moved. */
+.rirstrip{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin:2px 0 var(--sp-2);padding:var(--sp-2) 0 0 32px}
+.rirstrip-q{font-size:var(--fs-footnote);color:var(--label-2);margin-inline-end:2px}
+.rirchip{min-width:44px;min-height:44px;padding:0 var(--sp-2);border-radius:var(--r);background:var(--surface-2);
+  border:1.5px solid var(--bc,var(--surface-3));color:var(--label);font-weight:700;font-size:var(--fs-callout);
+  font-variant-numeric:tabular-nums;transition:transform var(--fast) var(--ease)}
+.rirchip:active{transform:scale(var(--press-scale-sm))}
+.rirstrip .iconbtn{margin-inline-start:auto}
+.nexthint{display:flex;gap:6px;align-items:flex-start;margin:0 0 var(--sp-2) 32px;font-size:var(--fs-footnote);color:var(--label-2);line-height:1.35}
+.nexthint .icn{flex:none;color:var(--acc-ink);margin-top:2px}
+/* The deload week card on Today (components/DeloadCard.jsx). */
+.deload-card{display:flex;flex-direction:column;gap:var(--sp-2);box-shadow:inset 0 0 0 1px var(--acc-line)}
+.deload-head{display:flex;align-items:center;gap:var(--sp-2);font-weight:700;font-size:var(--fs-body)}
+.deload-head .icn{color:var(--acc-ink)}
+.deload-text{line-height:1.4}
 
 /* Swipe on sets (v1.3.11, components/SwipeRow.jsx). The row slides over two panes: Copy at the
    start of the line, Delete at its end, each as wide as the swipe has gone and zero wide at rest.

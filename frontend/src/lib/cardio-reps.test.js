@@ -1,17 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { EXIDX, isCardio } from './exercises.js'
+import { EXIDX, isCardio, isLoadedEq } from './exercises.js'
 import { defaultConfig, modeOf } from './history.js'
 
 // Issue #717, the rest of the family #678 started with: burpees, star jumps, tuck jumps and the
 // other jacks are counted, not run, so they start as sets x reps. Running, walking, rowing and high
 // knees stay cardio.
+// The two that hold dumbbells (0504 jack press, 1201 burpee) are loaded, so they start on the
+// loaded lift's 8-12 range instead of 3 x 10.
 const COUNTED = ['1160', '2794', '1201', '0683', '3113', '0780', '5105', '3223', '0797', '3220', '0504', '1570', '3700']
 
 describe('counted bodyweight cardio', () => {
   it.each(COUNTED)('%s starts with sets and reps', id => {
     expect(EXIDX[id]).toBeDefined()
     expect(isCardio(id)).toBe(false)
-    expect(defaultConfig(id)).toMatchObject({ sets: 3, reps: 10, mode: 'reps' })
+    expect(defaultConfig(id)).toMatchObject({ sets: 3, mode: 'reps', ...(isLoadedEq(id) ? { reps: 12, repsMin: 8 } : { reps: 10 }) })
   })
 
   it('keeps an old burpee plan in its duration/speed form', () => {

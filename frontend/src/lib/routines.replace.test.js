@@ -77,7 +77,7 @@ describe('replaceSlotExercise', () => {
     expect(replaceSlotExercise({ id: BENCH, sg: 'sgA', sets: 4, mode: 'reps', reps: 8, weight: 60, note: 'n', restSec: 90 }, BIKE))
       .toEqual({ id: BIKE, sets: 1, min: 20, speed: 8, sg: 'sgA', note: 'n', restSec: 90 })
     expect(replaceSlotExercise({ id: BIKE, sets: 2, min: 30, speed: 12, note: 'easy' }, BENCH))
-      .toEqual({ id: BENCH, sets: 3, reps: 10, weight: 0, mode: 'reps', note: 'easy' })
+      .toEqual({ id: BENCH, sets: 3, reps: 12, repsMin: 8, weight: 0, mode: 'reps', note: 'easy' })
   })
 
   it('keeps a cardio slot\'s minutes and speed on another cardio exercise', () => {
@@ -99,8 +99,9 @@ describe('history after a replace', () => {
     day++
     st.workouts.push(buildCompletedWorkout(active, { end: active.start + 1 }))
   }
+  // Linear progression, pinned: these weights (60, then 62.5, then 65) are linear's steps.
   const state = () => ({
-    unit: 'kg', exWeights: {}, workouts: [], week: {}, dayPlan: {},
+    unit: 'kg', progDefault: 'linear', exWeights: {}, workouts: [], week: {}, dayPlan: {},
     routines: [{ id: 'A', name: 'Push', ex: [{ id: BENCH, sets: 2, mode: 'reps', reps: 10, weight: 60 }] }],
   })
 

@@ -177,6 +177,16 @@ export function inDeloadWeek(day, start) {
 }
 
 /**
+ * Whether `day` is a deload day: inside the week that `week` ({ start, ended? }, the profile's
+ * deloadWeek) started, and not on or after the day it was ended early.
+ */
+export function deloadWeekOn(week, day) {
+  if (!week || !inDeloadWeek(day, week.start)) return false
+  const sinceEnd = daysBetween(week.ended, day)
+  return !(sinceEnd != null && sinceEnd >= 0)
+}
+
+/**
  * One exercise's plan in a deload week: about 10 % less load and two thirds of the sets (at least
  * one). Lighter is snapped down to the step's grid (or the next weight you own); an assistance
  * machine gets more help instead; bodyweight work keeps no load and only loses sets.

@@ -37,7 +37,8 @@ const signedIn = S => useStore.setState({ S, user: USER, ready: true, sync: { ..
 
 // One routine, "Push": bench 3 × 5 at 100 kg, edited last at `_ts` 100.
 const withPlan = (over = {}) => ({
-  ...clone(DEF), _ts: 100,
+  // linear progression pinned: the reps and weights below are linear's (My Gym defaults to double)
+  ...clone(DEF), _ts: 100, progDefault: 'linear',
   routines: [{ id: 'A', name: 'Push', _ts: 100, ex: [{ id: BENCH, sets: 3, reps: 5, weight: 100 }] }],
   ...over,
 })

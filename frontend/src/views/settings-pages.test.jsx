@@ -332,10 +332,10 @@ describe('the pages', () => {
       'Drop and burst shortcuts on every set', 'Swipe actions', 'Exercise chips at the top', 'Muscle map at the top', 'Superset buttons in the exercise header', 'Move, swap and remove buttons below the exercise'])
   })
 
-  it('Default progression shows linear on an older profile and writes S.progDefault', () => {
+  it('Default progression shows double on an older profile and writes S.progDefault', () => {
     bindUI(useUI) // SelectRow opens its sheet through the bound store (the mock above)
     mount('advanced')
-    expect(rowTitled('Default progression').querySelector('.lrow-v').textContent).toBe('Linear progression')
+    expect(rowTitled('Default progression').querySelector('.lrow-v').textContent).toBe('Double progression')
     act(() => rowTitled('Default progression').click())
     const h = document.createElement('div'); document.body.appendChild(h)
     const r = createRoot(h)

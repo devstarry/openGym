@@ -105,6 +105,7 @@ describe('a programme', () => {
 
   it('the week sheet sets a deload and an RPE', () => {
     seed()
+    mocks.S.effort = 'none'   // no RIR scale on the profile, so the sheet speaks RPE
     mocks.S.programmes.P.days = { 1: ['r1'] }
     render(<ProgrammeEdit />)
     click([...host.querySelectorAll('.lrow.tap')].find(r => r.textContent.startsWith('Week 2')))

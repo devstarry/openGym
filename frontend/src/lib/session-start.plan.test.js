@@ -14,6 +14,9 @@ const work = e => e.sets.filter(s => !isWarmupRow(s))
 const reps = e => work(e).map(s => s.r)
 const clone = v => JSON.parse(JSON.stringify(v))
 const state = (routines, extra = {}) => ({ unit: 'kg', exWeights: {}, routines: clone(routines), workouts: [], week: {}, dayPlan: {}, ...extra })
+// These scenarios were written for linear progression's numbers (+2.5 kg at the same reps);
+// My Gym's default is double, so the ones that read those numbers pin linear.
+const LINEAR = { progDefault: 'linear' }
 const cfgOf = (st, rid, exId = BENCH) => st.routines.find(r => r.id === rid).ex.find(c => c.id === exId)
 const start = (st, rids) => buildCombinedEntries(st, rids).entries
 
@@ -40,7 +43,7 @@ describe('a planned session opens at the plan\'s reps', () => {
     const st = state([
       { id: 'A', name: 'Plan A', ex: [{ id: BENCH, sets: 2, reps: 10, weight: 60 }] },
       { id: 'B', name: 'Plan B', ex: [{ id: BENCH, sets: 2, reps: 15, weight: 40 }] },
-    ])
+    ], LINEAR)
     train(st, ['B'])
     const [a] = start(st, ['A'])
     expect(work(a)).toHaveLength(2)
@@ -82,7 +85,7 @@ describe('a planned session opens at the plan\'s reps', () => {
   }
 
   it('after one session logged at 15 on a 10 target — it does not stick', () => {
-    const st = state([{ id: 'A', name: 'A', ex: [{ id: BENCH, sets: 2, reps: 10, weight: 50 }] }])
+    const st = state([{ id: 'A', name: 'A', ex: [{ id: BENCH, sets: 2, reps: 10, weight: 50 }] }], LINEAR)
     expect(reps(start(st, ['A'])[0])).toEqual([10, 10])
     train(st, ['A'], { r: 15 })
     const [next] = start(st, ['A'])
@@ -105,7 +108,7 @@ describe('a planned session opens at the plan\'s reps', () => {
     const st = state([
       { id: 'A', name: 'A', ex: [{ id: BENCH, sets: 2, reps: 10, weight: 60, warmupSets: 1 }] },
       { id: 'B', name: 'B', ex: [{ id: BENCH, sets: 2, reps: 15, weight: 40 }] },
-    ])
+    ], LINEAR)
     train(st, ['B'])
     const [e] = start(st, ['A'])
     expect(e.sets.filter(isWarmupRow).map(s => s.r)).toEqual([10])
@@ -115,7 +118,7 @@ describe('a planned session opens at the plan\'s reps', () => {
     const st = state([
       { id: 'A', name: 'A', ex: [{ id: BENCH, sets: 2, reps: 10, weight: 60 }] },
       { id: 'B', name: 'B', ex: [{ id: BENCH, sets: 2, reps: 15, weight: 40 }] },
-    ])
+    ], LINEAR)
     train(st, ['B'])
     const [a, b] = start(st, ['A', 'B'])
     expect(reps(a)).toEqual([10, 10])
@@ -126,7 +129,7 @@ describe('a planned session opens at the plan\'s reps', () => {
     const st = state([{ id: 'A', name: 'A', ex: [{ id: BENCH, sets: 2, reps: 10, weight: 50, mode: 'reps' }] }])
     st.workouts.push({ id: 'p', d: '2026-09-01', entries: [{ id: BENCH, target: { sets: 2, reps: 10, weight: 50 }, sets: [{ w: 50, r: 15, done: true }, { w: 50, r: 15, done: true }] }] })
     const [e] = buildSessionEntries(st, st.routines[0])
-    expect(e.plan.policy).toBe('linear')
+    expect(e.plan.policy).toBe('double')   // My Gym's default rule
     expect(reps(e)).toEqual([10, 10])
   })
 
@@ -175,7 +178,7 @@ describe('an edited routine starts again from its new plan', () => {
   // The same edit that changed the reps changed the weight: 3 × 5 @ 100 rewritten as 3 × 10 @ 70
   // opens at 70 × 10, not at the 102.5 progression reached for fives.
   it('opens at the plan\'s new weight when the edit changed it too', () => {
-    const st = state([{ id: 'A', name: 'A', ex: [{ id: BENCH, sets: 3, reps: 5, weight: 100 }] }])
+    const st = state([{ id: 'A', name: 'A', ex: [{ id: BENCH, sets: 3, reps: 5, weight: 100 }] }], LINEAR)
     train(st, ['A'])
     train(st, ['A'])
     expect(work(start(st, ['A'])[0]).map(s => s.w)).toEqual([105, 105, 105])
@@ -208,7 +211,7 @@ describe('an edited routine starts again from its new plan', () => {
   })
 
   it('does not deload toward the old reps, or grow back a removed set, after three misses', () => {
-    const st = state([{ id: 'A', name: 'A', ex: [{ id: BENCH, sets: 3, reps: 15, weight: 50 }] }])
+    const st = state([{ id: 'A', name: 'A', ex: [{ id: BENCH, sets: 3, reps: 15, weight: 50 }] }], LINEAR)
     for (let i = 0; i < 3; i++) train(st, ['A'], { r: 12 })
     Object.assign(cfgOf(st, 'A'), { sets: 2, reps: 10 })
     const [e] = start(st, ['A'])
@@ -265,7 +268,7 @@ describe('bodyweight progression and a lift logged without a weight', () => {
 
 describe('"Your last session" keeps the old carry-over', () => {
   it('opens at the reps logged last time, judged against the plan', () => {
-    const st = state([{ id: 'A', name: 'A', ex: [{ id: BENCH, sets: 2, reps: 10, weight: 50 }] }], { startFrom: 'last' })
+    const st = state([{ id: 'A', name: 'A', ex: [{ id: BENCH, sets: 2, reps: 10, weight: 50 }] }], { startFrom: 'last', ...LINEAR })
     train(st, ['A'], { r: 15 })
     const [e] = start(st, ['A'])
     expect(reps(e)).toEqual([15, 15])

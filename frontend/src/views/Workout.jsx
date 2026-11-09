@@ -65,6 +65,8 @@ import { MUSCLE_NAME } from '../lib/muscles.js'
 import FocusView from './FocusView.jsx'
 import { SeasonDeco } from '../components/Seasonal.jsx'
 import { entryDbLoad, bellsIn, ownedWeightsFor, stepOwned } from '../lib/dumbbells.js'
+import { nextSet, rirOf } from '../lib/rir-rules.js'
+import { normalizeRepRange } from '../lib/rep-range.js'
 import { sessionGymView, gymsOf, activeGym, gymLabel, switchGym, reRoundOpenSets } from '../lib/gym-inventory.js'
 import { exView, viewEntry, inEntryUnit } from '../lib/ex-unit.js'
 import { setTrendOn, setTrendsFor, trendGlyph, trendLabel } from '../lib/set-trend.js'
@@ -404,6 +406,57 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
   const okRows = useUI(s => s.okRows)
   const isOk = i => editing || !!okRows?.[okKey(i)]
   const accept = i => { if (!isOk(i)) setUI({ okRows: { ...(useUI.getState().okRows || {}), [okKey(i)]: true } }) }
+  // My Gym: effort in one tap, and the next set from it (lib/rir-rules.js).
+  // Ticking a set while the profile logs RIR opens a strip of chips under it (0, 1, 2, 3, 4+): one
+  // tap logs how many reps were left. A rating, from the strip or the effort picker, then reads the
+  // set: 4+ left makes the next untouched work set one step heavier, failure short of the range one
+  // step lighter, failure inside it aims the next set at the reps you got. Only a row you have not
+  // taken moves, and a line under it says why. Screen state only, like okRows.
+  const rirLog = col3?.eff === 'rir'
+  const [rateAt, setRateAt] = useState(null)
+  const [hintAt, setHintAt] = useState(null)
+  const range = normalizeRepRange(cfg.reps || 10, cfg.repsMin, repStep(cfg))
+  const hintText = (out, nx) => {
+    const moved = out.w !== (Number(nx.w) || 0)
+    if (out.reason === 'set-easy') return moved
+      ? t('The last set had 4 or more reps left, so this one is {0} {1}.', fmtNum(out.w), S.unit)
+      : t('The last set had 4 or more reps left, so aim for {0} reps here.', out.r)
+    if (out.reason === 'set-failed-below') return moved
+      ? t('The last set went to failure below the range, so this one is {0} {1}.', fmtNum(out.w), S.unit)
+      : t('The last set went to failure below the range, so aim for {0} reps here.', out.r)
+    return t('The last set went to failure at {0} reps, so aim for {0} here.', out.r)
+  }
+  const suggestNext = (i, rir) => {
+    if (rir == null || mode !== 'reps' || editing) return
+    const st = useStore.getState().S
+    const rows = viewEntry(st, st.active?.entries[entryIdx])?.sets || []
+    const done = rows[i]
+    if (!done || isWarmupRow(done) || isSideSet(done)) return
+    const j = rows.findIndex((x, k) => k > i && !x.done && !isWarmupRow(x) && !isSideSet(x))
+    if (j < 0 || isOk(j)) return
+    const nx = rows[j]
+    const out = nextSet({ w: done.w, r: done.r, rir }, { w: nx.w, r: nx.r }, range,
+      { step: loadStep, assisted: isAssisted(cfg), owned, floor: barFloor(st, entry.id), bodyweight: bw, repStep: repStep(cfg) })
+    if (!out) return
+    if (out.w !== (Number(nx.w) || 0)) onField(j, 'w', out.w)
+    if (out.r !== (Number(nx.r) || 0)) onField(j, 'r', out.r)
+    setHintAt({ j, text: hintText(out, nx) })
+  }
+  const rate = (i, v) => { accept(i); onField(i, 'rir', v); setRateAt(null); suggestNext(i, v) }
+  const tick = i => {
+    const s0 = liveRow(i)
+    const was = !!s0?.done
+    onToggle(i)
+    if (!was && rirLog && s0 && s0[col3.f] == null && !isWarmupRow(s0)) setRateAt(i)
+    else if (rateAt === i) setRateAt(null)
+    if (hintAt?.j === i) setHintAt(null)
+  }
+  const rirStrip = i => (rateAt === i && rirLog ? <div className="rirstrip" role="group" aria-label={t('Reps left in the tank')}>
+    <span className="rirstrip-q">{t('Reps left?')}</span>
+    {[0, 1, 2, 3, 4].map(v => <button key={v} type="button" className="rirchip" style={{ '--bc': effortColor(v) }}
+      aria-label={v === 4 ? t('4 or more reps left') : t('{0} reps left', v)} onClick={() => rate(i, v)}>{v === 4 ? '4+' : v}</button>)}
+    <button type="button" className="iconbtn" aria-label={t('Skip rating')} onClick={() => setRateAt(null)}><Icon name="xmark" /></button>
+  </div> : null)
   // Last time's matching set, beside each row (the "Last time" column): warm-ups against the
   // warm-ups, work sets against the work sets, by their place in each. Only with the +/- buttons
   // off — with them on the row has no room left on a phone, and the "Last time" line above the
@@ -644,6 +697,8 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
     const pickEffort = nv => {
       accept(i)
       onField(i, col.f, nv)
+      if (rateAt === i) setRateAt(null)
+      if (nv != null) suggestNext(i, rirOf({ [col.f]: nv }))
       if (nv == null) return
       const fresh = useStore.getState().S.active?.entries[entryIdx]?.sets[i]
       if (fresh && !fresh.done) onToggle(i)
@@ -769,7 +824,7 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
           set off itself. The checkbox stays for anyone who timed it on their own watch. */}
       {timed && !editing && <button className="setgo" aria-label={t('Start set')} disabled={s.done || !!working}
         onClick={() => onStartTimed(i)}><Icon name="play" /></button>}
-      <Check checked={s.done} tour="tick" label={sideTagOf(s) ? t('Set {0} ({1}) done', setNumOf(s, i), sideTagOf(s)) : t('Set {0} done', setNumOf(s, i))} onChange={() => onToggle(i)} />
+      <Check checked={s.done} tour="tick" label={sideTagOf(s) ? t('Set {0} ({1}) done', setNumOf(s, i), sideTagOf(s)) : t('Set {0} done', setNumOf(s, i))} onChange={() => tick(i)} />
     </div>
   )
   // Swipe on sets (v1.3.11, Settings → Workout): a set row swiped toward the start of the line is
@@ -893,6 +948,8 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
               </div>
             </div>
           ) : pairHead ? <>{plainRow(s, i)}{plainRow(entry.sets[i + 1], i + 1)}</> : plainRow(s, i))}
+          {rirStrip(i)}
+          {hintAt?.j === i && !s.done && <div className="nexthint"><Icon name="lightbulb" /><span>{hintAt.text}</span></div>}
           {swipeHint && swipeHint.i === i && swipeOn && <div className="swhint">
             <button type="button" onClick={() => setUI({ swipeHint: null })}>
               <Icon name="swap" /><span>{t('Psst: swipe a set. Left deletes, right copies.')}</span><Icon name="xmark" />

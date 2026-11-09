@@ -15,6 +15,7 @@ import { programmeSlot, pctWeight } from './programmes.js'
 import { todayISO } from './format.js'
 import { exConverted, exView, viewTarget, storedTarget, storedRow } from './ex-unit.js'
 import { warmupSource, warmupModeOf, withWarmupBlock } from './warmup-ramp.js'
+import { deloadWeekOn, deloadWeekPlan } from './rir-rules.js'
 
 /**
  * Where a planned session's reps come from (Settings → During a workout). 'plan', the default:
@@ -115,6 +116,18 @@ function planEntry(stored, cfg, routine, { noProg = false } = {}) {
   const slot = noProg ? null : programmeSlot(stored, routine?.id, cfg.id, stored?.active?.d || todayISO())
   const policyKind = plan.kind
   if (slot) plan = programmePlan(st, cfg, plan, slot, step)
+  // My Gym's deload week (lib/rir-rules.js, Today's card): outside a programme, a rep exercise built
+  // inside the week the profile started runs about 10 % lighter with two thirds of its work sets,
+  // and the session stays out of progression (the `deload` flag below, as a programme's deload).
+  const myDeload = !noProg && !slot && modeOf(cfg) === 'reps' && deloadWeekOn(stored?.deloadWeek, stored?.active?.d || todayISO())
+  let deloadSets = null
+  if (myDeload) {
+    const base = plan.weight ?? cfg.weight ?? 0
+    const dw = deloadWeekPlan({ sets: cfg.sets || 3, weight: base }, { step, assisted: isAssisted(cfg), owned: ownedWeightsFor(st, cfg), floor: barFloor(st, cfg.id) })
+    deloadSets = dw.sets
+    plan = { policy: plan.policy, kind: 'deload', ...(base > 0 ? { weight: dw.weight } : {}), ...(plan.reps != null ? { reps: plan.reps } : {}), sets: dw.sets,
+      why: ['Deload week: about 10% lighter and fewer sets. This session doesn’t count for progression.'] }
+  }
   const planReps = !startsFromLast(st) || plan.kind === 'programme'
   const fromLast = !noProg && policyKind === 'off' && !slot && startsFromLast(st)
   // Warm-ups ramp over the dumbbells you own when the profile lists them (issue #376): a rung
@@ -129,7 +142,10 @@ function planEntry(stored, cfg, routine, { noProg = false } = {}) {
   // first work set really opens at, on the active gym's plates and dumbbells.
   const block = !warmCarry && ['auto', 'own'].includes(warmupSource(st, cfg).kind)
   const built = applyPrescription(buildSets(st, warmCarry || block ? { ...cfg, warmupSets: 0 } : cfg, { step: ramp, rid: routine?.id, useTarget: policyKind === 'off' && !fromLast, planReps }), plan, ramp, barFloor(st, cfg.id), isAssisted(cfg))
-  const rows = backoffStep ? applyBackoff(built, backoffStep) : built
+  const backed = backoffStep ? applyBackoff(built, backoffStep) : built
+  // A deload week keeps the warm-ups and the first of the work sets.
+  let work = 0
+  const rows = deloadSets ? backed.filter(r => isWarmupRow(r) || ++work <= deloadSets) : backed
   const shaped = applyIntensifierPlan(rows, cfg, dropGrid(st, cfg))
   const sets = warmCarry ? withCarriedWarmups(shaped, warmCarry, modeOf(cfg), cfg, ramp, barFloor(st, cfg.id))
     : block ? withWarmupBlock(st, cfg, shaped, { grid: dropGrid(st, cfg), floor: barFloor(st, cfg.id), unit: st.unit })
@@ -158,7 +174,7 @@ function planEntry(stored, cfg, routine, { noProg = false } = {}) {
     && rows.some(s => !isWarmupRow(s) && s.r !== cfg.reps)
   // `planned` is what the routine asked for, kept apart from the target the prescription moved,
   // so the next session can tell an edited plan from a progressed one (nextPrescription).
-  return { target, plan, sets, planned: plannedOf(cfg), ...(carried ? { carried: true } : {}), ...(slot?.deload ? { deload: true } : {}) }
+  return { target, plan, sets, planned: plannedOf(cfg), ...(carried ? { carried: true } : {}), ...(slot?.deload || myDeload ? { deload: true } : {}) }
 }
 
 // An exercise with a weight unit of its own (#657, lib/ex-unit.js) is built in that unit: on the
