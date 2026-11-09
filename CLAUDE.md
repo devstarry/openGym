@@ -119,6 +119,13 @@ machine, never in CI (see "Exercise media" below and docs/APP_STORES.md).
   user-facing text in `t()` (the i18n machinery is still there, and upstream code expects it),
   but add **no translations**; `check-locales.mjs` and `check-source-strings.mjs` pass with no
   packs. Write British English.
+- **App icon: My Gym's own "D + star".** The default launcher icon (`android/app/src/main/res/
+  mipmap-*/ic_launcher*.png`, the Wear OS `drawable-nodpi/ic_launcher_foreground.png` and
+  `launcher_bg`, and `public/app-icons/default.png`) is cut from `resources/mygym-icon-source.png`
+  (the glyph alone, transparent, is `resources/mygym-icon-glyph.png`) on `#141519`, the glyph
+  scaled to stay inside Android's 66 dp safe circle (77% of the inset foreground; 222 of 432 px
+  on the watch). **Do not run `scripts/app-icons.mjs` as is**: it redraws every launcher icon
+  from the old openGym dumbbell and would undo this (its `--check` test fails for that reason).
 
 ### API (`api/server.js`)
 
