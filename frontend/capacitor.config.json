@@ -2,7 +2,7 @@
   "appId": "com.devstar.mygym",
   "appName": "My Gym",
   "webDir": "dist",
-  "backgroundColor": "#0c0e12",
+  "backgroundColor": "#0b0b0d",
   "android": {
     "allowMixedContent": true
   },
@@ -14,7 +14,7 @@
       "launchShowDuration": 8000,
       "launchAutoHide": true,
       "launchFadeOutDuration": 180,
-      "backgroundColor": "#0c0e12",
+      "backgroundColor": "#0b0b0d",
       "showSpinner": false
     }
   }
