@@ -3663,4 +3663,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "เว็บฮุกจะหยุดส่งระหว่างที่ \"การเชื่อมต่อ\" ปิดอยู่ แต่ยังตั้งค่าไว้เหมือนเดิม",
   "{0} of {1} modules on.": "เปิดอยู่ {0} จาก {1} โมดูล",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "{0} จะหยุดซิงก์ระหว่างที่ \"สุขภาพ\" ปิดอยู่ ไม่มีอะไรถูกตัดการเชื่อมต่อ และจะตามทันเมื่อเปิด \"สุขภาพ\" อีกครั้ง",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "ความก้าวหน้า",
+  "Profile": "โปรไฟล์",
+  "Back to Progress": "กลับไปความก้าวหน้า",
+  "Your routines live behind this tab. Tap Routines.": "รูทีนของคุณอยู่หลังแท็บนี้ แตะ “รูทีน”",
+  "Routines are made under this tab. Tap Routines.": "รูทีนสร้างในแท็บนี้ แตะ “รูทีน”",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "กลับหน้าหลักแล้ว จบการซ้อม “ความก้าวหน้า” คือที่ที่ผลงานกองพูน แตะเลย",
+  "Everything you can tweak lives under Profile. Tap it.": "ทุกอย่างที่ปรับได้อยู่ใน “โปรไฟล์” แตะเลย",
+  "They’re on Today. Tap it.": "อยู่ใน “วันนี้” แตะเลย",
+  "They live under Progress. Tap it.": "อยู่ใน “ความก้าวหน้า” แตะเลย",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "เปลี่ยนได้ทุกเมื่อใน “รูทีน” การออกกำลังกายที่ผ่านมาจะเก็บสิ่งที่คุณทำจริงไว้",
+  "Sessions start from Today. Tap it.": "เริ่มการออกกำลังกายได้ที่ “วันนี้” แตะเลย",
 }

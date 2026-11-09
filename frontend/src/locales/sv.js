@@ -3699,4 +3699,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "Dina webhooks skickar inget medan ”Integrationer” är av. De förblir inställda.",
   "{0} of {1} modules on.": "{0} av {1} moduler på.",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "{0} slutar synka medan ”Hälsa” är av. Inget kopplas bort, och allt kommer ikapp när ”Hälsa” är tillbaka.",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "Framsteg",
+  "Profile": "Profil",
+  "Back to Progress": "Tillbaka till Framsteg",
+  "Your routines live behind this tab. Tap Routines.": "Dina rutiner bor bakom den här fliken. Tryck på Rutiner.",
+  "Routines are made under this tab. Tap Routines.": "Rutiner skapas under den här fliken. Tryck på Rutiner.",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "Hemma igen, övningen är över. Framsteg är där framstegen samlas. Tryck på den.",
+  "Everything you can tweak lives under Profile. Tap it.": "Allt du kan finjustera finns under Profil. Tryck på den.",
+  "They’re on Today. Tap it.": "De finns under Idag. Tryck på den.",
+  "They live under Progress. Tap it.": "De bor under Framsteg. Tryck på den.",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "Ändra dem när du vill under Rutiner. Tidigare pass behåller det du faktiskt gjorde.",
+  "Sessions start from Today. Tap it.": "Passen startar under Idag. Tryck på den.",
 }

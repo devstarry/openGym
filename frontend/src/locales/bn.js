@@ -3731,4 +3731,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "\"ইন্টিগ্রেশন\" বন্ধ থাকলে আপনার ওয়েবহুক কিছু পাঠায় না। সেগুলো সেট আপ করাই থাকে।",
   "{0} of {1} modules on.": "{1}টির মধ্যে {0}টি মডিউল চালু।",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "\"স্বাস্থ্য\" বন্ধ থাকলে {0} সিঙ্ক বন্ধ রাখে। কিছুই বিচ্ছিন্ন হয় না, আর \"স্বাস্থ্য\" ফিরলেই সব পুষিয়ে নেয়।",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "অগ্রগতি",
+  "Profile": "প্রোফাইল",
+  "Back to Progress": "অগ্রগতিতে ফিরুন",
+  "Your routines live behind this tab. Tap Routines.": "আপনার রুটিন এই ট্যাবের পেছনে। \"রুটিন\"-এ ট্যাপ করুন।",
+  "Routines are made under this tab. Tap Routines.": "রুটিন বানানো হয় এই ট্যাবে। \"রুটিন\"-এ ট্যাপ করুন।",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "হোমে ফিরলাম, অনুশীলন শেষ। \"অগ্রগতি\"-তে আপনার পরিশ্রম জমা হয়। ট্যাপ করুন।",
+  "Everything you can tweak lives under Profile. Tap it.": "যা কিছু বদলাতে পারেন, সব \"প্রোফাইল\"-এ আছে। ট্যাপ করুন।",
+  "They’re on Today. Tap it.": "এগুলো \"আজ\"-এ আছে। ট্যাপ করুন।",
+  "They live under Progress. Tap it.": "এগুলো \"অগ্রগতি\"-তে আছে। ট্যাপ করুন।",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "\"রুটিন\"-এ যখন খুশি বদলান। পুরোনো ওয়ার্কআউটে যা সত্যি করেছিলেন তাই থাকে।",
+  "Sessions start from Today. Tap it.": "সেশন শুরু হয় \"আজ\" থেকে। ট্যাপ করুন।",
 }

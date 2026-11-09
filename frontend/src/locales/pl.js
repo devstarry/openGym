@@ -3652,4 +3652,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "Twoje webhooki nic nie wysyłają, gdy „Integracje” są wyłączone. Pozostają skonfigurowane.",
   "{0} of {1} modules on.": "Włączone moduły: {0} z {1}.",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "{0} przestaje się synchronizować, gdy „Zdrowie” jest wyłączone. Nic nie zostaje odłączone, a po ponownym włączeniu wszystko się nadrobi.",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "Postępy",
+  "Profile": "Profil",
+  "Back to Progress": "Wróć do Postępów",
+  "Your routines live behind this tab. Tap Routines.": "Twoje plany treningowe mieszkają za tą zakładką. Dotknij Plany treningowe.",
+  "Routines are made under this tab. Tap Routines.": "Plany treningowe tworzysz w tej zakładce. Dotknij Plany treningowe.",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "Z powrotem na Starcie, próba skończona. W Postępach rosną efekty. Dotknij.",
+  "Everything you can tweak lives under Profile. Tap it.": "Wszystko, co możesz dostosować, jest w zakładce Profil. Dotknij jej.",
+  "They’re on Today. Tap it.": "Są w zakładce Dziś. Dotknij jej.",
+  "They live under Progress. Tap it.": "Są w Postępach. Dotknij.",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "Zmieniaj je kiedy chcesz w zakładce Plany treningowe. Minione treningi zachowują to, co naprawdę zrobiłeś.",
+  "Sessions start from Today. Tap it.": "Treningi zaczynasz w zakładce Dziś. Dotknij jej.",
 }

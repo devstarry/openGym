@@ -3652,4 +3652,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "'연동'이 꺼져 있는 동안 웹훅이 전송되지 않아요. 설정은 그대로예요.",
   "{0} of {1} modules on.": "모듈 {1}개 중 {0}개 켜짐.",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "'건강'이 꺼져 있는 동안 {0} 동기화가 멈춰요. 연결은 끊기지 않고, '건강'을 다시 켜면 밀린 걸 따라잡아요.",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "진행",
+  "Profile": "프로필",
+  "Back to Progress": "진행으로 돌아가기",
+  "Your routines live behind this tab. Tap Routines.": "루틴은 이 탭 뒤에 있어요. '루틴'을 누르세요.",
+  "Routines are made under this tab. Tap Routines.": "루틴은 이 탭에서 만들어요. '루틴'을 누르세요.",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "홈으로 돌아왔어요, 연습 끝. '진행'에 성과가 쌓여요. 눌러 보세요.",
+  "Everything you can tweak lives under Profile. Tap it.": "바꿀 수 있는 건 전부 '프로필'에 있어요. 눌러 보세요.",
+  "They’re on Today. Tap it.": "'오늘'에 있어요. 눌러 보세요.",
+  "They live under Progress. Tap it.": "'진행' 아래에 있어요. 눌러 보세요.",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "'루틴'에서 언제든 바꿀 수 있어요. 지난 운동은 실제로 한 그대로 남아요.",
+  "Sessions start from Today. Tap it.": "운동은 '오늘'에서 시작해요. 눌러 보세요.",
 }

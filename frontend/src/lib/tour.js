@@ -48,7 +48,9 @@ export const STEPS = [
   { id: 'go-library', route: '/plan', anchor: 'tab-library', go: '/library' },
   { id: 'lib-search', route: '/library', anchor: 'lib-search' },
   { id: 'lib-filters', route: '/library', anchor: 'lib-filters' },
-  { id: 'start', route: '/library', anchor: 'start', intercept: true },
+  // Today's row starts the session: the four-tab bar has no Start button (components/TabBar.jsx).
+  { id: 'go-today', route: '/library', anchor: 'tab-home', go: '/home' },
+  { id: 'start', route: '/home', anchor: 'today', intercept: true },
   { id: 'set', route: '/workout', anchor: 'set', sandbox: 'practice' },
   { id: 'tick', route: '/workout', anchor: 'tick', sandbox: 'practice', tap: true },
   { id: 'rest', route: '/workout', anchor: 'rest', sandbox: 'practice', when: c => c.rest, optional: true },
@@ -59,8 +61,7 @@ export const STEPS = [
   { id: 'stats', route: '/stats', anchor: 'stats-tiles' },
   { id: 'stats-body', route: '/stats', anchor: 'stats-body', when: c => c.balance, optional: true },
   { id: 'stats-records', route: '/stats', anchor: 'stats-records', when: c => c.workouts, optional: true },
-  { id: 'go-home', route: '/stats', anchor: 'tab-home', go: '/home' },
-  { id: 'go-settings', route: '/home', anchor: 'settings-gear', go: '/settings' },
+  { id: 'go-settings', route: '/stats', anchor: 'tab-profile', go: '/settings' },
   { id: 'look', route: '/settings', anchor: 'settings-look' },
   { id: 'units', route: '/settings', anchor: 'settings-units' },
   { id: 'data', route: '/settings', anchor: 'settings-data' },
@@ -99,7 +100,7 @@ const PLAN = [
 const madeEx = c => (c.S?.customEx?.length || 0) > (c.entry.customEx || 0)
 const CUSTOM = [
   { id: 'c-intro', route: null, anchor: null },
-  { id: 'c-go', route: null, anchor: 'tab-library', go: '/library' },
+  { id: 'c-go', route: '/plan', anchor: 'tab-library', go: '/library' },
   { id: 'c-new', route: '/library', anchor: 'lib-new', open: true, until: c => c.sheets > 0 },
   { id: 'c-name', route: '/library', anchor: 'cx-name', open: true, sheet: true, lost: c => !c.sheets, back: 'c-new' },
   { id: 'c-bp', route: '/library', anchor: 'cx-bp', open: true, sheet: true, lost: c => !c.sheets, back: 'c-new' },
@@ -137,8 +138,7 @@ const EDIT = [
 const BACKUP = [
   { id: 'b-intro', route: null, anchor: null },
   { id: 'b-up', route: null, anchor: 'sp-back', go: '/settings', skip: c => !/^\/settings\/./.test(c.path || '') },
-  { id: 'b-go-home', route: null, anchor: 'tab-home', go: '/home', skip: inSettings },
-  { id: 'b-go-settings', route: null, anchor: 'settings-gear', go: '/settings' },
+  { id: 'b-go-settings', route: null, anchor: 'tab-profile', go: '/settings' },
   { id: 'b-data', route: '/settings', anchor: 'settings-data', go: '/settings/data' },
   { id: 'b-export', route: '/settings/data', anchor: 'data-export' },
   { id: 'b-csv', route: '/settings/data', anchor: 'data-csv' },

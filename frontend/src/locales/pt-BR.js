@@ -2441,6 +2441,18 @@ export const PT_BR_OVERRIDES = {
   "Your watch stops getting workouts while Watch is off. It stays paired.": "Seu relógio para de receber treinos enquanto “Relógio” estiver desligado. Continua pareado.",
   "Your webhooks stop sending while Integrations is off. They stay set up.": "Seus webhooks param de enviar enquanto “Integrações” estiver desligado. Continuam configurados.",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "{0} para de sincronizar enquanto “Saúde” estiver desligado. Nada fica desconectado, e ele se atualiza quando “Saúde” voltar.",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "Progresso",
+  "Profile": "Perfil",
+  "Back to Progress": "Voltar para Progresso",
+  "Your routines live behind this tab. Tap Routines.": "Suas rotinas ficam atrás dessa aba. Toque em Rotinas.",
+  "Routines are made under this tab. Tap Routines.": "Rotinas são criadas nessa aba. Toque em Rotinas.",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "De volta ao Início, treino de mentira encerrado. É em Progresso que os ganhos se acumulam. Toque aí.",
+  "Everything you can tweak lives under Profile. Tap it.": "Tudo o que dá para ajustar fica em Perfil. Toque aí.",
+  "They’re on Today. Tap it.": "Ficam em Hoje. Toque aí.",
+  "They live under Progress. Tap it.": "Ficam em Progresso. Toque aí.",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "Mude quando quiser em Rotinas. Treinos passados guardam o que você realmente fez.",
+  "Sessions start from Today. Tap it.": "As sessões começam em Hoje. Toque aí.",
 }
 
 export default { ...pt, ...PT_BR_OVERRIDES }

@@ -35,13 +35,15 @@ afterEach(() => {
   where.loc = { pathname: '/home' }
 })
 
-const tabs = () => [...host.querySelectorAll('#tabbar button')]
+// The four tabs only; the resume row, when there is one, is a button too but not a tab.
+const tabs = () => [...host.querySelectorAll('#tabbar > button:not(.resume)')]
+const resume = () => host.querySelector('#tabbar .resume')
 
 describe('the tab bar across a store write', () => {
   it('keeps the very same buttons instead of rebuilding them every tick', () => {
-    act(() => { root.render(<TabBar onStart={() => {}} />) })
+    act(() => { root.render(<TabBar />) })
     const before = tabs()
-    expect(before).toHaveLength(5)
+    expect(before).toHaveLength(4)
 
     // What a rest does once a second: S is replaced, so everything reading it re-renders.
     act(() => { useStore.getState().update(s => { s.restSec = 91 }, false) })
@@ -52,69 +54,78 @@ describe('the tab bar across a store write', () => {
   })
 
   it('still lights the tab for the route it is on, and follows a change of state', () => {
-    act(() => { root.render(<TabBar onStart={() => {}} />) })
-    expect(tabs()[0].className).toBe('on')
-    expect(tabs()[1].className).toBe('')
-    expect(tabs()[2].className).toBe('start')
+    act(() => { root.render(<TabBar />) })
+    expect(tabs().map(b => b.className)).toEqual(['on', '', '', ''])
+    expect(tabs()[0].getAttribute('aria-current')).toBe('page')
+    expect(resume()).toBeNull()
 
-    act(() => { useStore.getState().update(s => { s.active = { id: 'a', entries: [], cur: 0 } }, false) })
-    expect(tabs()[2].className).toBe('start rec')
+    act(() => { useStore.getState().update(s => { s.active = { id: 'a', name: 'Push', entries: [], cur: 0 } }, false) })
+    expect(resume()).not.toBeNull()
     expect(tabs()[0].className).toBe('on')
   })
 })
 
-// Settings → "Show connection status" off (#369, #330): a stuck sync shows as a dot on Home, the
-// tab Settings opens from, and the tab's name says it.
-describe('the connection dot on Home', () => {
-  const home = () => tabs()[0]
+// Settings → "Show connection status" off (#369, #330): a stuck sync shows as a dot on Profile, the
+// tab Settings lives under, and the tab's name says it.
+describe('the connection dot on Profile', () => {
+  const profile = () => tabs()[3]
   it('is there for a sync problem only while the banner is switched off', () => {
     const original = useStore.getState().sync
     try {
       useStore.setState({ sync: { status: 'error', lastError: { status: 502 }, pending: true } })
-      act(() => { root.render(<TabBar onStart={() => {}} />) })
-      expect(home().querySelector('.tab-dot')).toBeNull()
+      act(() => { root.render(<TabBar />) })
+      expect(profile().querySelector('.tab-dot')).toBeNull()
       act(() => { useStore.getState().update(s => { s.connStatus = false }, false) })
-      expect(home().querySelector('.tab-dot')).not.toBeNull()
-      expect(home().getAttribute('aria-label')).toBe('Home, Connection problem')
+      expect(profile().querySelector('.tab-dot')).not.toBeNull()
+      expect(profile().getAttribute('aria-label')).toBe('Profile, Connection problem')
       act(() => { useStore.setState({ sync: { status: 'ok', lastError: null, pending: false } }) })
-      expect(home().querySelector('.tab-dot')).toBeNull()
-      expect(home().getAttribute('aria-label')).toBeNull()
+      expect(profile().querySelector('.tab-dot')).toBeNull()
+      expect(profile().getAttribute('aria-label')).toBeNull()
     } finally { useStore.setState({ sync: original }) }
   })
 })
 
-// v1.3.11 icon sweep: one icon per concept. Every tab carries its name under the icon, Start is a
-// play button whether or not a session runs, and Exercises is the dumbbell (no more generic list).
+// My Gym's four tabs: one icon per concept, every tab named under its icon, no Start button.
 describe('the tab icons and labels', () => {
   const icon = el => el.querySelector('svg')?.getAttribute('data-icon')
   const label = el => el.querySelector('span:last-child').textContent
   it('labels every tab and uses one icon per concept', () => {
-    act(() => { root.render(<TabBar onStart={() => {}} />) })
-    expect(tabs().map(icon)).toEqual(['house', 'calendar', 'play', 'chart', 'dumbbell'])
-    expect(tabs().map(label)).toEqual(['Home', 'Plan', 'Start', 'Stats', 'Exercises'])
-
-    act(() => { useStore.getState().update(s => { s.active = { id: 'a', entries: [], cur: 0 } }, false) })
-    expect(icon(tabs()[2])).toBe('play')
-    expect(label(tabs()[2])).toBe('Resume')
+    act(() => { root.render(<TabBar />) })
+    expect(tabs().map(icon)).toEqual(['sun', 'list', 'chartLine', 'personCircle'])
+    expect(tabs().map(label)).toEqual(['Today', 'Routines', 'Progress', 'Profile'])
   })
+})
 
-  it('shows a minimized session’s running time, still named Resume', () => {
+// A session you stepped away from: a row over the tabs that goes back to it.
+describe('the resume row', () => {
+  it('shows a minimized session’s name and running time, and is named Resume', () => {
     vi.useFakeTimers()
     try {
       vi.setSystemTime(new Date(2026, 9, 5, 18, 0, 0))
-      act(() => { useStore.getState().update(s => { s.active = { id: 'a', entries: [], cur: 0, start: Date.now() - 754_000 } }, false) })
-      act(() => { root.render(<TabBar onStart={() => {}} />) })
-      const start = tabs()[2]
-      expect(label(start)).toBe('12:34')
-      expect(start.getAttribute('aria-label')).toBe('Resume')
+      act(() => { useStore.getState().update(s => { s.active = { id: 'a', name: 'Push A', entries: [], cur: 0, start: Date.now() - 754_000 } }, false) })
+      act(() => { root.render(<TabBar />) })
+      const row = resume()
+      expect(row.querySelector('.resume-name').textContent).toBe('Push A')
+      expect(row.querySelector('.resume-time').textContent).toBe('12:34')
+      expect(row.getAttribute('aria-label')).toBe('Resume, Push A')
+      expect(document.body.classList.contains('has-resume')).toBe(true)
       act(() => { vi.advanceTimersByTime(2000) })
-      expect(label(start)).toBe('12:36')
-      expect(tabs()[2]).toBe(start)   // the same button, only its text ticks
+      expect(row.querySelector('.resume-time').textContent).toBe('12:36')
+      expect(resume()).toBe(row)   // the same button, only its text ticks
 
       // a past workout being edited has no clock running
       act(() => { useStore.getState().update(s => { s.active.editingWorkoutId = 'w1' }, false) })
-      expect(label(tabs()[2])).toBe('Edit workout')
+      expect(resume().querySelector('.resume-time')).toBeNull()
+      expect(resume().querySelector('.resume-go').textContent).toBe('Edit workout')
     } finally { vi.useRealTimers() }
+  })
+
+  it('is not there on the workout screen itself, and takes its room back when it goes', () => {
+    act(() => { useStore.getState().update(s => { s.active = { id: 'a', name: 'Push', entries: [], cur: 0 } }, false) })
+    where.loc = { pathname: '/workout' }
+    act(() => { root.render(<TabBar />) })
+    expect(resume()).toBeNull()
+    expect(document.body.classList.contains('has-resume')).toBe(false)
   })
 })
 
@@ -123,17 +134,17 @@ describe('the tab icons and labels', () => {
 describe('the tab a screen without its own lights', () => {
   const lit = () => tabs().filter(b => b.classList.contains('on')).map(b => b.textContent)
   it.each([
-    ['/history', 'Stats'], ['/structural-balance', 'Stats'], ['/progress-photos', 'Stats'], ['/measurements', 'Stats'],
-    ['/settings', 'Home'], ['/settings/units', 'Home'], ['/checkin', 'Home'], ['/muscles', 'Exercises'],
+    ['/history', 'Progress'], ['/structural-balance', 'Progress'], ['/progress-photos', 'Progress'], ['/measurements', 'Progress'],
+    ['/settings', 'Profile'], ['/settings/units', 'Profile'], ['/checkin', 'Today'], ['/library', 'Routines'], ['/muscles', 'Routines'],
   ])('%s lights %s', (pathname, tab) => {
     where.loc = { pathname }
-    act(() => { root.render(<TabBar onStart={() => {}} />) })
+    act(() => { root.render(<TabBar />) })
     expect(lit()).toEqual([tab])
   })
 
-  it('Muscles opened from Stats lights Stats, the way its back button goes', () => {
+  it('Muscles opened from Stats lights Progress, the way its back button goes', () => {
     where.loc = { pathname: '/muscles', state: { from: '/stats' } }
-    act(() => { root.render(<TabBar onStart={() => {}} />) })
-    expect(lit()).toEqual(['Stats'])
+    act(() => { root.render(<TabBar />) })
+    expect(lit()).toEqual(['Progress'])
   })
 })

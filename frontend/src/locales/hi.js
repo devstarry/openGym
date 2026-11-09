@@ -3652,4 +3652,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "\"इंटीग्रेशन\" बंद रहने तक आपके Webhook कुछ नहीं भेजते। वे सेट रहते हैं।",
   "{0} of {1} modules on.": "{1} में से {0} मॉड्यूल चालू।",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "\"सेहत\" बंद रहने तक {0} सिंक नहीं करता। कुछ भी डिस्कनेक्ट नहीं होता, और \"सेहत\" लौटते ही सब पकड़ लेता है।",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "प्रगति",
+  "Profile": "प्रोफ़ाइल",
+  "Back to Progress": "वापस प्रगति पर",
+  "Your routines live behind this tab. Tap Routines.": "आपके रूटीन इस टैब के पीछे हैं। \"रूटीन\" पर टैप कीजिए।",
+  "Routines are made under this tab. Tap Routines.": "रूटीन इसी टैब में बनते हैं। \"रूटीन\" पर टैप कीजिए।",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "वापस होम पर, अभ्यास ख़त्म। \"प्रगति\" में आपकी मेहनत जमा होती है। टैप कीजिए।",
+  "Everything you can tweak lives under Profile. Tap it.": "जो कुछ भी बदल सकते हैं, सब \"प्रोफ़ाइल\" में है। टैप कीजिए।",
+  "They’re on Today. Tap it.": "ये \"आज\" में हैं। टैप कीजिए।",
+  "They live under Progress. Tap it.": "ये \"प्रगति\" में हैं। टैप कीजिए।",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "\"रूटीन\" में कभी भी बदलिए। पुराने वर्कआउट में वही रहता है जो आपने सच में किया।",
+  "Sessions start from Today. Tap it.": "सेशन \"आज\" से शुरू होते हैं। टैप कीजिए।",
 }

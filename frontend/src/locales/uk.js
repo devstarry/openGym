@@ -3649,4 +3649,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "Поки «Інтеграції» вимкнено, твої вебхуки нічого не надсилають. Вони лишаються налаштованими.",
   "{0} of {1} modules on.": "Увімкнено модулів: {0} з {1}.",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "Поки «Здоров'я» вимкнено, {0} не синхронізується. Нічого не від’єднується, і все наздожене, щойно «Здоров'я» повернеться.",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "Прогрес",
+  "Profile": "Профіль",
+  "Back to Progress": "Назад до прогресу",
+  "Your routines live behind this tab. Tap Routines.": "Ваші програми за цією вкладкою. Торкніться «Програми».",
+  "Routines are made under this tab. Tap Routines.": "Програми створюються в цій вкладці. Торкніться «Програми».",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "Знову на головній, репетицію закінчено. У «Прогресі» збираються всі успіхи. Торкніться.",
+  "Everything you can tweak lives under Profile. Tap it.": "Усе, що можна налаштувати, є в «Профілі». Торкніться.",
+  "They’re on Today. Tap it.": "Вони в «Сьогодні». Торкніться.",
+  "They live under Progress. Tap it.": "Вони в «Прогресі». Торкніться.",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "Змінюйте їх будь-коли в «Програмах». Минулі тренування зберігають те, що ви справді зробили.",
+  "Sessions start from Today. Tap it.": "Тренування починаються в «Сьогодні». Торкніться.",
 }

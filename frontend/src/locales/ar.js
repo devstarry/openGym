@@ -3707,4 +3707,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "لا يرسل الويب هوك شيئًا ما دامت «التكاملات» متوقفة. يبقى مُعدًّا.",
   "{0} of {1} modules on.": "{0} من {1} وحدات مفعّلة.",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "يتوقف {0} عن المزامنة ما دامت «الصحة» متوقفة. لا يُفصل شيء، ويلحق بكل شيء عند عودة «الصحة».",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "التقدّم",
+  "Profile": "الملف الشخصي",
+  "Back to Progress": "رجوع إلى التقدّم",
+  "Your routines live behind this tab. Tap Routines.": "روتيناتك خلف هذا التبويب. المس الروتينات.",
+  "Routines are made under this tab. Tap Routines.": "الروتينات تُصنع تحت هذا التبويب. المس الروتينات.",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "عدت إلى الرئيسية، انتهت التجربة. التقدّم هو حيث تتراكم المكاسب. المسه.",
+  "Everything you can tweak lives under Profile. Tap it.": "كل ما يمكنك ضبطه موجود تحت الملف الشخصي. المسه.",
+  "They’re on Today. Tap it.": "إنها في اليوم. المسها.",
+  "They live under Progress. Tap it.": "إنها تحت التقدّم. المسه.",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "غيّرها متى شئت تحت الروتينات. التمارين السابقة تحتفظ بما فعلته فعلًا.",
+  "Sessions start from Today. Tap it.": "الجلسات تبدأ من اليوم. المسه.",
 }

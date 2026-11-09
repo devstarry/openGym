@@ -3652,4 +3652,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "“Entegrasyonlar” kapalıyken webhook'ların bir şey göndermez. Kurulu kalırlar.",
   "{0} of {1} modules on.": "{1} modülden {0} tanesi açık.",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "“Sağlık” kapalıyken {0} eşitlemeyi durdurur. Hiçbir bağlantı kesilmez, “Sağlık” geri gelince her şeyi yakalar.",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "İlerleme",
+  "Profile": "Profil",
+  "Back to Progress": "İlerleme'ye dön",
+  "Your routines live behind this tab. Tap Routines.": "Rutinlerin bu sekmenin arkasında. Rutinler'e dokun.",
+  "Routines are made under this tab. Tap Routines.": "Rutinler bu sekmede yapılır. Rutinler'e dokun.",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "Evdesin, deneme bitti. Kazanımların biriktiği yer İlerleme. Dokun.",
+  "Everything you can tweak lives under Profile. Tap it.": "Ayarlayabildiğin her şey Profil'de. Dokun.",
+  "They’re on Today. Tap it.": "Bugün'deler. Dokun.",
+  "They live under Progress. Tap it.": "İlerleme'nin altındalar. Dokun.",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "Rutinler'de istediğin zaman değiştir. Geçmiş antrenmanlar gerçekte ne yaptıysan onu saklar.",
+  "Sessions start from Today. Tap it.": "Antrenmanlar Bugün'den başlar. Dokun.",
 }

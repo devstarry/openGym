@@ -11,9 +11,9 @@ beforeEach(() => { localStorage.clear(); closeTour() })
 afterEach(() => { localStorage.clear(); closeTour() })
 
 describe('steps', () => {
-  it('runs Home, Plan, Library, the workout, Stats, Settings and a closing card, in that order', () => {
+  it('runs Home, Plan, Library, Today again for the workout, Stats, Settings and a closing card, in that order', () => {
     const routes = tourSteps({}).map(s => s.route).filter((r, i, all) => r !== all[i - 1])
-    expect(routes).toEqual(['/home', '/plan', '/library', '/workout', '/home', '/stats', '/home', '/settings', null])
+    expect(routes).toEqual(['/home', '/plan', '/library', '/home', '/workout', '/home', '/stats', '/settings', null])
     expect(tourSteps({}).at(-1)).toMatchObject({ id: 'done', anchor: null })
   })
   it('never jumps between screens: each change of screen is a stop on the real control that leads there', () => {
@@ -27,10 +27,10 @@ describe('steps', () => {
         if (a && b && a !== b) expect(reached(prev, b) || prev.id === 'p-save', flow + ': ' + prev.id + ' → ' + s.id).toBe(true)
       })
     }
-    // the tab bar's own buttons, the gear and the back buttons
-    expect(STEPS.filter(s => s.go).map(s => s.anchor)).toEqual(['tab-plan', 'tab-library', 'tab-stats', 'tab-home', 'settings-gear'])
-    // into the practice workout through the Start button, which the tour takes for itself
-    expect(STEPS.find(s => s.id === 'start')).toMatchObject({ anchor: 'start', intercept: true, route: '/library' })
+    // the tab bar's own buttons and the Exercises button under Routines
+    expect(STEPS.filter(s => s.go).map(s => s.anchor)).toEqual(['tab-plan', 'tab-library', 'tab-home', 'tab-stats', 'tab-profile'])
+    // into the practice workout through Today's row, which the tour takes for itself
+    expect(STEPS.find(s => s.id === 'start')).toMatchObject({ anchor: 'today', intercept: true, route: '/home' })
   })
   it('the tutorials each open with a card that says what they do and end with one', () => {
     expect(TUTORIALS).toEqual(['plan', 'custom', 'edit', 'backup'])

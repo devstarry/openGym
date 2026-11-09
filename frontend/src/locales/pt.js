@@ -3652,4 +3652,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "Os teus webhooks deixam de enviar enquanto «Integrações» estiver desligado. Continuam configurados.",
   "{0} of {1} modules on.": "{0} de {1} módulos ligados.",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "{0} deixa de sincronizar enquanto «Saúde» estiver desligado. Nada fica desconectado, e põe-se em dia quando «Saúde» voltar.",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "Progresso",
+  "Profile": "Perfil",
+  "Back to Progress": "Voltar ao Progresso",
+  "Your routines live behind this tab. Tap Routines.": "As tuas rotinas vivem atrás deste separador. Toca em Rotinas.",
+  "Routines are made under this tab. Tap Routines.": "As rotinas fazem-se neste separador. Toca em Rotinas.",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "De volta ao Início, ensaio feito. É no Progresso que os ganhos se acumulam. Toca aí.",
+  "Everything you can tweak lives under Profile. Tap it.": "Tudo o que podes ajustar está no Perfil. Toca nele.",
+  "They’re on Today. Tap it.": "Estão em Hoje. Toca aí.",
+  "They live under Progress. Tap it.": "Estão no Progresso. Toca aí.",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "Altera-as quando quiseres em Rotinas. Os treinos passados guardam o que fizeste mesmo.",
+  "Sessions start from Today. Tap it.": "As sessões começam em Hoje. Toca aí.",
 }

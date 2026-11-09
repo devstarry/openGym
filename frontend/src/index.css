@@ -410,6 +410,7 @@ button.conn:active{filter:brightness(1.12)}
    line in every language. The ellipsis is only the safety net (the strings are kept short), and
    text-overflow follows the text direction, so Arabic clips on its own end. */
 .hdr.lib-hdr{flex-wrap:wrap;align-items:center;row-gap:0}
+.hdr.lib-hdr>.lib-title{flex:1;min-width:0;margin-inline-start:12px}
 .hdr.lib-hdr>.sub.lib-count{flex:1 0 100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:360px){.hdr.lib-hdr>.sub.lib-count{white-space:normal;overflow:visible;text-overflow:clip}}
 
@@ -657,29 +658,37 @@ h4.sec{
   background:var(--orange);box-shadow:0 0 0 2px var(--bg-el);pointer-events:none;
 }
 .iconbtn .tab-dot{top:5px;right:5px;box-shadow:0 0 0 2px var(--bg)}
-#tabbar button.start{margin-top:-24px}
-#tabbar button.start .cir{
-  width:52px;height:52px;border-radius:50%;background:var(--acc);color:var(--on-acc);
-  display:flex;align-items:center;justify-content:center;position:relative;
-  box-shadow:0 6px 18px -4px var(--acc);box-shadow:0 6px 18px -4px color-mix(in srgb,var(--acc) 55%,transparent);
-  transition:transform var(--fast) var(--ease);
+/* My Gym's four tabs (components/TabBar.jsx). Each tab is at least --tap tall; the one you are on
+   gets its icon and label in the accent and a short accent bar along the bar's top edge. */
+#tabbar{flex-wrap:wrap;align-items:stretch;padding-top:0}
+#tabbar>button:not(.resume){position:relative;min-height:var(--tap);justify-content:center;padding-top:var(--sp-2);font-size:var(--fs-caption2)}
+#tabbar>button:not(.resume)::before{
+  content:'';position:absolute;top:0;inset-inline-start:50%;width:28px;height:3px;margin-inline-start:-14px;
+  border-radius:0 0 3px 3px;background:var(--acc);transform:scaleX(0);transition:transform var(--med) var(--ease);
 }
-#tabbar button.start:active .cir{transform:scale(.93)}
-#tabbar button.start .cir .icn{font-size:26px;--icon-stroke:2;color:inherit;opacity:1}
-#tabbar button.start span{color:var(--acc-ink);font-weight:600}
-#tabbar button.start .tab-time{font-variant-numeric:tabular-nums}
-/* `.cir` is itself a <span>, so the label rules above and below reach it too and
-   outrank the `.cir` block — which is how the running state ended up painting an
-   orange play glyph onto an orange disc. Both states restate their own colour.
-   The disc is orange in either theme, so its glyph is black, not `--on-acc`. */
-#tabbar button.start .cir{color:var(--on-acc)}
-#tabbar button.start.rec .cir{background:var(--orange);color:#000;box-shadow:0 6px 18px -4px var(--orange);box-shadow:0 6px 18px -4px color-mix(in srgb,var(--orange) 55%,transparent)}
-#tabbar button.start.rec span{color:var(--orange)}
-#tabbar button.start.rec .cir::after{
-  content:'';position:absolute;inset:0;border-radius:50%;
-  border:2px solid var(--orange);animation:ping 1.9s var(--ease) infinite;
+#tabbar>button.on::before{transform:scaleX(1)}
+#tabbar>button:not(.resume):active .icn{transform:scale(var(--press-scale-sm))}
+#tabbar>button .icn{transition:transform var(--fast) var(--ease)}
+/* A session you stepped away from: one row over the tabs, the whole of it a button back in. */
+#tabbar .resume{
+  flex:1 0 100%;display:flex;flex-direction:row;align-items:center;gap:var(--sp-2);
+  min-height:44px;margin:var(--sp-2) var(--sp-1) var(--sp-1);padding:0 var(--sp-3);
+  border-radius:var(--r);background:var(--surface-2);color:var(--label);
+  font-size:var(--fs-footnote);font-weight:500;text-align:start;
+  transition:transform var(--fast) var(--ease),background var(--fast);
 }
-@keyframes ping{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.45);opacity:0}}
+#tabbar .resume:active{transform:scale(var(--press-scale));background:var(--surface-3)}
+#tabbar .resume-dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--acc);animation:resume-pulse 1.9s var(--ease) infinite}
+#tabbar .resume-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tabbar .resume-time{flex:none;font-variant-numeric:tabular-nums;font-weight:700;color:var(--acc-ink)}
+#tabbar .resume-go{flex:none;display:inline-flex;align-items:center;gap:2px;color:var(--acc-ink)}
+#tabbar .resume-go .icn{font-size:16px;--icon-stroke:2;color:inherit}
+@keyframes resume-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){#tabbar .resume-dot{animation:none}#tabbar>button:not(.resume)::before{transition:none}}
+/* Room for the resume row (44px + its 12px of margin) under the page and the rest timer. */
+body.has-resume #app{padding-bottom:calc(144px + var(--sab))}
+body.has-resume.resting #app{padding-bottom:calc(222px + var(--sab))}
+body.has-resume #timer{bottom:calc(144px + var(--sab))}
 
 /* NOTE on every backdrop-filter pair in this file: the -webkit- line comes first and the
    standard property last, which is the order a prefixed/standard pair wants — whichever is
@@ -2752,7 +2761,6 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
     border:var(--hair) solid var(--sep-op);border-radius:var(--r-xl);
     padding:7px 10px 9px;box-shadow:0 12px 40px -10px rgba(0,0,0,.5);
   }
-  #tabbar button.start{margin-top:-26px}
   .sheet{left:50%;right:auto;margin-left:-320px;width:640px;border-radius:var(--r-xl) var(--r-xl) 0 0}
   .center{width:340px}
   .center.wide{width:440px}

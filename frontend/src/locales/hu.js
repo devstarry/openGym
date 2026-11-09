@@ -3655,4 +3655,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "Amíg az „Integrációk” ki vannak kapcsolva, a webhookjaid nem küldenek semmit. Beállítva maradnak.",
   "{0} of {1} modules on.": "{1} modulból {0} bekapcsolva.",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "Amíg az „Egészség” ki van kapcsolva, a(z) {0} nem szinkronizál. A kapcsolat megmarad, és mindent bepótol, amint az „Egészség” újra be van kapcsolva.",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "Fejlődés",
+  "Profile": "Profil",
+  "Back to Progress": "Vissza a Fejlődéshez",
+  "Your routines live behind this tab. Tap Routines.": "A rutinjaid e mögött a fül mögött laknak. Koppints a Rutinokra.",
+  "Routines are made under this tab. Tap Routines.": "A rutinok ezen a fülön készülnek. Koppints a Rutinokra.",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "Újra a kezdőlapon, vége a próbának. A Fejlődésben gyűlnek a sikerek. Koppints rá.",
+  "Everything you can tweak lives under Profile. Tap it.": "Minden, amit állíthatsz, a Profilban van. Koppints rá.",
+  "They’re on Today. Tap it.": "A Ma fülön vannak. Koppints rá.",
+  "They live under Progress. Tap it.": "A Fejlődésben laknak. Koppints rá.",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "Bármikor módosíthatod őket a Rutinoknál. A korábbi edzések azt őrzik, amit tényleg csináltál.",
+  "Sessions start from Today. Tap it.": "Az edzések a Ma fülről indulnak. Koppints rá.",
 }

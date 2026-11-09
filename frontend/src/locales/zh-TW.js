@@ -3645,4 +3645,16 @@ export default {
   "Your webhooks stop sending while Integrations is off. They stay set up.": "「整合」關閉期間，你的 Webhook 不會傳送。設定仍會保留。",
   "{0} of {1} modules on.": "已開啟 {0}/{1} 個模組。",
   "{0} stops syncing while Health is off. Nothing is disconnected, and it catches up once Health is back.": "「健康」關閉期間，{0} 會停止同步。不會中斷任何連線，「健康」重新開啟後會自動補上。",
+  // --- My Gym: the four-tab bar (Today, Routines, Progress, Profile) ---
+  "Progress": "進步",
+  "Profile": "我的",
+  "Back to Progress": "回到進步",
+  "Your routines live behind this tab. Tap Routines.": "你的課表都在這個分頁後面。點「訓練課表」。",
+  "Routines are made under this tab. Tap Routines.": "課表在這個分頁裡建立。點「訓練課表」。",
+  "Back home, practice over. Progress is where the gains pile up. Tap it.": "回到首頁，練習結束。「進步」是成果堆起來的地方。點它。",
+  "Everything you can tweak lives under Profile. Tap it.": "所有能調的東西都在「我的」裡。點它。",
+  "They’re on Today. Tap it.": "它們在「今天」裡。點它。",
+  "They live under Progress. Tap it.": "它們在「進步」裡。點它。",
+  "Change them any time under Routines. Past workouts keep what you actually did.": "隨時在「訓練課表」裡改。過去的訓練會保留你當時真正練的內容。",
+  "Sessions start from Today. Tap it.": "訓練從「今天」開始。點它。",
 }

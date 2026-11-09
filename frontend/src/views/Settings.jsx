@@ -1298,10 +1298,8 @@ function SettingsRoot({ ctx, preview, open, user, sync, home, go, entryKey }) {
   // it the admin dashboard has no Coach card to land on.
   const config = useStore(s => s.config)
   const adminCoach = !MOBILE && !DEMO && !!user?.admin && coachAvailable(config, user) && (!ctx.mod || ctx.mod('coach'))
+  // The root of Settings is the Profile tab (components/TabBar.jsx): a tab root has no back button.
   return <div className="narrow">
-    <div className="sp-nav">
-      <button className="sp-back" data-back="/home" onClick={home} aria-label={t('Home')}><Icon name="chevronLeft" /><span>{t('Home')}</span></button>
-    </div>
     <h1 className="sp-root-title">{t('Settings')}</h1>
     <div className="sp-search">
       <SearchField value={q} onChange={e => set(e.target.value)} onClear={() => set('')}

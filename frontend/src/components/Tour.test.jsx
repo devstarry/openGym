@@ -29,8 +29,8 @@ import Tour, { _setAnchorWait } from './Tour.jsx'
 
 const clone = o => JSON.parse(JSON.stringify(o))
 const ANCHORS = ['today', 'start', 'plan-mode', 'plan-views', 'plan-menu', 'lib-search', 'lib-filters', 'set', 'tick', 'swipe', 'workout-more', 'finish', 'stats-tiles',
-  'settings-look', 'settings-units', 'settings-data', 'tab-home', 'tab-plan', 'tab-stats', 'tab-library', 'settings-gear']
-const TABS = { 'tab-home': '/home', 'tab-plan': '/plan', 'tab-stats': '/stats', 'tab-library': '/library', 'settings-gear': '/settings' }
+  'settings-look', 'settings-units', 'settings-data', 'tab-home', 'tab-plan', 'tab-stats', 'tab-library', 'tab-profile', 'settings-gear']
+const TABS = { 'tab-home': '/home', 'tab-plan': '/plan', 'tab-stats': '/stats', 'tab-library': '/library', 'tab-profile': '/settings', 'settings-gear': '/settings' }
 let root, host, where, tapped, made
 function Screens({ skip = [] }) {
   const nav = useNavigate()
@@ -248,7 +248,7 @@ describe('the ways between screens', () => {
   it('points at the real tab and waits for the tap, then goes on on the new screen', async () => {
     await run('go-plan')
     expect(where).toBe('/home')
-    expect(card().textContent).toContain('Tap Plan')
+    expect(card().textContent).toContain('Tap Routines')
     expect(btn('Next')).toBeUndefined()
     expect(btn('Show me')).toBeTruthy()
     // the hole lets the tap through: no pane over it
@@ -271,14 +271,12 @@ describe('the ways between screens', () => {
     expect(where).toBe('/stats')
     expect(step()).toBe('stats')
   })
-  it('Settings is shown the way it is reached: Home first, then the gear', async () => {
+  it('Settings is shown the way it is reached: the Profile tab, from anywhere', async () => {
     await run('stats', null, '/stats')
     await click(btn('Next'))
     await settle(300)
-    expect(step()).toBe('go-home')
-    await click(anchor('tab-home'))
     expect(step()).toBe('go-settings')
-    await click(anchor('settings-gear'))
+    await click(anchor('tab-profile'))
     expect(where).toBe('/settings')
     expect(step()).toBe('look')
   })
@@ -324,13 +322,13 @@ describe('the spotlight follows its element', () => {
 })
 
 describe('the practice workout', () => {
-  it('the Start button is the tour’s: a practice session nothing saves, gone when the tour moves on', async () => {
+  it('Today’s row is the tour’s: a practice session nothing saves, gone when the tour moves on', async () => {
     useStore.getState().update(s => { s.routines = [{ id: 'mine', name: 'Mine', ex: [] }] }, false)
     const real = useStore.getState().S
     const saved = localStorage.getItem('gym_state_v1')
-    await run('start', null, '/library')
+    await run('start', null, '/home')
     expect(card().textContent).toContain('Tap it for a practice run')
-    await click(anchor('start'))
+    await click(anchor('today'))
     expect(tapped).toBe(null)   // the app's own Start never heard of it
     expect(step()).toBe('set')
     expect(beginWorkout).toHaveBeenCalledWith([SAMPLE_ROUTINE_ID], null)
