@@ -395,12 +395,37 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
   // workout → Workout controls). The lean default keeps the sets and one "more" button; each
   // switch brings one of the old always-visible button rows back.
   const wc = workoutControls(S)
+  // My Gym: an untouched row's numbers are the session's suggestion (the progression built them),
+  // drawn grey until you take them — a tap on a number, a change to it, or ticking the set, which
+  // logs them as they stand. Which rows you have taken is screen state only (useUI.okRows), keyed
+  // by the session, the exercise's place and the row, so nothing new reaches the saved workout.
+  // A saved workout being corrected has no suggestions: its rows are what was done.
+  const okKey = i => `${S.active?.start || 0}:${entryIdx}:${i}`
+  const okRows = useUI(s => s.okRows)
+  const isOk = i => editing || !!okRows?.[okKey(i)]
+  const accept = i => { if (!isOk(i)) setUI({ okRows: { ...(useUI.getState().okRows || {}), [okKey(i)]: true } }) }
+  // Last time's matching set, beside each row (the "Last time" column): warm-ups against the
+  // warm-ups, work sets against the work sets, by their place in each. Only with the +/- buttons
+  // off — with them on the row has no room left on a phone, and the "Last time" line above the
+  // sets still says it. Rep sets and holds; cardio's rows carry two numbers of their own already,
+  // and a per-side exercise's L/R stack has no column to line it up with.
+  const showPrev = !wc.steppers && !cardio && !perSide && !!last?.sets?.length
+  const prevOf = i => {
+    const warm = isWarmupRow(entry.sets[i])
+    const nth = entry.sets.slice(0, i + 1).filter(x => isWarmupRow(x) === warm).length - 1
+    // lastEntryFor hands the work sets as `sets` and the warm-ups apart, as `warmups`.
+    const p = (warm ? last.warmups || [] : last.sets.filter(x => !isWarmupRow(x)))[nth]
+    if (!p) return '–'
+    if (timed) return p.sec > 0 ? fmtNum(p.sec) + 's' : '–'
+    return p.w > 0 ? `${fmtNum(p.w)} × ${fmtNum(p.r || 0)}` : p.r > 0 ? `× ${fmtNum(p.r)}` : '–'
+  }
   const cell = (s, i, col, cls) => (
     <div className={'stp ' + cls + (wc.steppers ? '' : ' plain')}>
-      {wc.steppers && <button aria-label={t('Decrease')} onClick={() => bump(s, i, col, -1)}><Icon name="minus" /></button>}
+      {wc.steppers && <button aria-label={t('Decrease')} onClick={() => { accept(i); bump(s, i, col, -1) }}><Icon name="minus" /></button>}
       <span className="val"><NumberField decimal={col.dec} nullable={col.opt} value={viewOf(col, s[col.f]) ?? ''}
-        onChange={v => onField(i, col.f, col.store ? col.store(v) : v)} /></span>
-      {wc.steppers && <button aria-label={t('Increase')} onClick={() => bump(s, i, col, 1)}><Icon name="plus" /></button>}
+        onFocus={() => accept(i)}
+        onChange={v => { accept(i); onField(i, col.f, col.store ? col.store(v) : v) }} /></span>
+      {wc.steppers && <button aria-label={t('Increase')} onClick={() => { accept(i); bump(s, i, col, 1) }}><Icon name="plus" /></button>}
     </div>
   )
   // Plate loading, per set row (lib/plates.js): which plates make THIS row's weight, from the
@@ -617,6 +642,7 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
     // undo via the checkmark. Reads `done` live from the store, since a superset re-render can
     // stale the closure's `s`, and only ticks a set that is not already done.
     const pickEffort = nv => {
+      accept(i)
       onField(i, col.f, nv)
       if (nv == null) return
       const fresh = useStore.getState().S.active?.entries[entryIdx]?.sets[i]
@@ -729,8 +755,9 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
   const failMark = s => isFailureSet(s) ? <span className="failmark" aria-hidden="true">{t('F')}</span> : null
   const failSay = (s, label) => isFailureSet(s) ? label + ', ' + t('Taken to failure') : label
   const plainRow = (s, i) => (
-    <div ref={el => onSetRowRef?.(i, el)} data-tour="set" className={'setrow' + (s.done ? ' done' : '') + (col3 ? ' eff3' : '') + (timed ? ' timed' : '')}>
+    <div ref={el => onSetRowRef?.(i, el)} data-tour="set" className={'setrow' + (s.done ? ' done' : '') + (isOk(i) ? ' ok' : '') + (col3 ? ' eff3' : '') + (timed ? ' timed' : '') + (showPrev ? ' prev' : '')}>
       <button type="button" className="n" aria-label={trendSay(i, failSay(s, sideTagOf(s) ? t('Set {0} ({1})', setNumOf(s, i), sideTagOf(s)) : t('Set {0}', setNumOf(s, i))))} aria-describedby={optsId} title={t('More')} onClick={() => openSetMenu(s, i)}>{setNumOf(s, i)}{failMark(s)}{trendMark(i)}</button>
+      {showPrev && <span className="prevcell">{prevOf(i)}</span>}
       {/* Both words sit in the pill's one grid cell (::before/::after, hidden), so Left and
           Right are as wide as the longer of the two in every language and the inputs
           after them line up (#322). */}
@@ -829,7 +856,7 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
     <div className="card" style={{ marginTop: 10, marginBottom: 0 }}>
       {/* the header carries the same eff3/timed sizing as the rows, or the labels drift off their
           columns; over L/R rows it also has to skip the side badge that sits in front of the weight cell */}
-      <div className={'sethead' + (col3 ? ' eff3' : '') + (timed ? ' timed' : '') + (perSide ? ' per-side' : '') + (wc.steppers ? '' : ' plain')}><span className="n-sp" /><span className="w-sp">{col1.hd}</span>{col2 && <span className="r-sp">{col2.hd}</span>}{col3 && <span className={col3.eff ? 'eff-sp' : 'r-sp'}>{col3.hd}</span>}{timed && <span className="ck-sp" />}<span className="ck-sp" /></div>
+      <div className={'sethead' + (col3 ? ' eff3' : '') + (timed ? ' timed' : '') + (perSide ? ' per-side' : '') + (wc.steppers ? '' : ' plain') + (showPrev ? ' prev' : '')}><span className="n-sp" />{showPrev && <span className="p-sp">{t('Last time')}</span>}<span className="w-sp">{col1.hd}</span>{col2 && <span className="r-sp">{col2.hd}</span>}{col3 && <span className={col3.eff ? 'eff-sp' : 'r-sp'}>{col3.hd}</span>}{timed && <span className="ck-sp" />}<span className="ck-sp" /></div>
       <span id={optsId} className="vh">{t('Options: copy, remove')}</span>
       {entry.sets.map((s, i) => {
         const warm = isWarmupRow(s)
@@ -914,7 +941,7 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
         <Button size="sm" icon="sunrise" onClick={onAddWarmup}>{t('Add warm-up set')}</Button>
         <Button size="sm" icon="minus" disabled={entry.sets.length <= setSpanAt(entry.sets, entry.sets.length - 1)[1]} onClick={onRemoveSet}>{t('Remove set')}</Button>
         <Button size="sm" icon="plus" onClick={onAddSet}>{t('Add set')}</Button>
-      </div> : <Button size="sm" icon="plus" onClick={onAddSet}>{t('Add set')}</Button>}
+      </div> : <Button size="sm" icon="plus" className="addset" onClick={onAddSet}>{t('Add set')}</Button>}
     </div>
   </>
 }

@@ -66,11 +66,13 @@ export function NumberField({ value, onChange, decimal = true, nullable = false,
       // `fit` hugs the digits on screen — a big read-out with its unit sitting right beside
       // it — where the default fills whatever cell the field is in.
       style={fit ? { width: numWidthCh(String(shown)) + 'ch' } : undefined}
-      onFocus={e => { justFocused.current = true; e.target.select() }}
       onMouseUp={e => { if (justFocused.current) { justFocused.current = false; e.preventDefault() } }}
       onChange={e => commit(e.target.value)}
       onBlur={() => { setDraft(null); committed.current = null; justFocused.current = false }}
       {...rest}
+      // After `rest`, and calling the caller's own onFocus too (the workout row takes its
+      // suggestion on focus): a caller's handler must not cost the select-all.
+      onFocus={e => { justFocused.current = true; e.target.select(); rest.onFocus?.(e) }}
     />
   )
 }

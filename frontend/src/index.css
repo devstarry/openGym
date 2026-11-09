@@ -1542,14 +1542,27 @@ button.whdr-gym{color:var(--acc-ink);cursor:pointer}
 .effpick .effpick-free .stp{flex:none;width:148px}
 .effpick .effpick-free .stp .num{font-size:var(--fs-body);font-weight:600}
 .effpick .effpick-free .stp .num::placeholder{color:var(--label-3);font-weight:500}
-/* A ticked set fades back. Its parts fade, not the row: the number keeps full opacity and is drawn
-   in the faded colours instead, so the set-vs-last arrow and the failure mark on it stay readable
-   (at .45 the light theme's arrow was 2:1). The look is the same as the old row opacity. */
-.setrow.done>*:not(.n){opacity:.45}
-.setrow.done .n{background:var(--acc);color:var(--on-acc);
-  background:color-mix(in srgb,var(--acc) 45%,var(--surface));color:color-mix(in srgb,var(--on-acc) 45%,var(--surface))}
-/* Safari before 16.2: the number fades as a whole, as the row did before */
-@supports not (color: color-mix(in srgb, red 50%, blue)){.setrow.done .n{color:var(--on-acc);opacity:.45}}
+/* My Gym's logging rows (views/Workout.jsx ExerciseBlock).
+   - The numbers are the row's loudest thing: bold, figures of one width.
+   - An untouched row's numbers are the session's suggestion, grey (--label-3, 3.6:1 on a card,
+     large and bold) until taken: a tap on one, a change, or the tick. `.ok` is a taken row.
+   - A ticked set keeps its numbers at full strength and sits on a tint of the accent, its number
+     filled with it, instead of fading back: what you did is what you look at.
+   - "Last time": last session's matching set, small and quiet, between the number and the weight. */
+.setrow .stp .num{font-weight:700;font-variant-numeric:tabular-nums}
+.setrow:not(.done):not(.ok) .stp .num{color:var(--label-3)}
+.setrow.done{background:var(--acc-soft);border-radius:var(--r-sm);margin-inline:-6px;padding-inline:6px}
+.setrow.done+.setrow::before,.setrow.done::before{display:none}
+.setrow.done .n{background:var(--acc);color:var(--on-acc)}
+.sethead .p-sp,.setrow .prevcell{flex:1 1 0;min-width:58px;max-width:80px;text-align:start;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.setrow .prevcell{font-size:var(--fs-footnote);color:var(--label-2);font-variant-numeric:tabular-nums}
+/* Under 340 px the column would squeeze the RIR button below a thumb's width: it goes, and the
+   "Last time" line over the sets still says it. */
+@media (max-width:340px){.sethead .p-sp,.setrow .prevcell{display:none}}
+.btn.addset{width:100%;justify-content:center;min-height:var(--tap);margin-top:var(--sp-1);
+  background:none;border:1px dashed var(--surface-3);border-radius:var(--r);color:var(--acc-ink)}
+.btn.addset:active{background:var(--surface-2)}
 
 /* Swipe on sets (v1.3.11, components/SwipeRow.jsx). The row slides over two panes: Copy at the
    start of the line, Delete at its end, each as wide as the swipe has gone and zero wide at rest.

@@ -25,6 +25,8 @@ let container
 
 function setActive(entries, { cur = 0, wc, hints = { swipeSets: true }, editing = false } = {}) {
   const S = clone(DEF)
+  // These tests press the +/- buttons, which My Gym switches off by default (lib/workout-controls.js).
+  S.wc = { ...(S.wc || {}), steppers: true }
   if (wc) S.wc = { ...S.wc, ...wc }
   S.hints = hints
   S.active = {

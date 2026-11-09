@@ -90,6 +90,8 @@ function workout(entries, cur = 0) {
   return {
     unit: 'kg', restSec: 90, sound: false, effort: 'none', gifSize: 'full',
     workouts: [], exWeights: {}, routines: [],
+    // These tests press the +/- buttons, which My Gym switches off by default (lib/workout-controls.js).
+    wc: { steppers: true },
     active: { id: 'active', name: 'Test workout', start: Date.now(), cur, entries },
   }
 }

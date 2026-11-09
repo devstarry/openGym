@@ -37,6 +37,8 @@ function mount(entries, patch = {}) {
   S.workoutView = 'list'
   Object.assign(S, patch)
   S.active = { id: 'db-test', d: '2026-10-09', start: Date.now(), routineId: null, name: 'Dumbbells', bw: null, cur: 0, entries, workoutView: S.workoutView }
+  // These tests press the +/- buttons, which My Gym switches off by default (lib/workout-controls.js).
+  S.wc = { ...(S.wc || {}), steppers: true }
   useStore.setState({ S, user: null })
   container = document.createElement('div')
   document.body.appendChild(container)

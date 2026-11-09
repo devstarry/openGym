@@ -23,6 +23,8 @@ function mount(id, sets, more = {}) {
     id: 'incline-test', d: '2026-10-09', start: Date.now(), routineId: null, name: 'Cardio', bw: null, cur: 0, ...more,
     entries: [{ id, target: { sets: 1, min: 20, speed: 5 }, sets }],
   }
+  // These tests press the +/- buttons, which My Gym switches off by default (lib/workout-controls.js).
+  S.wc = { ...(S.wc || {}), steppers: true }
   useStore.setState({ S, user: null })
   container = document.createElement('div')
   document.body.appendChild(container)

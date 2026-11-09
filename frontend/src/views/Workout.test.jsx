@@ -66,6 +66,7 @@ const mocks = vi.hoisted(() => {
     addRest: state.addRest,
     startWork: state.startWork,
     toast: state.toast,
+    okRows: state.okRows,
   })
   return state
 })
@@ -83,6 +84,7 @@ vi.mock('../store/useUI.js', () => {
     const next = typeof patch === 'function' ? patch(mocks.uiSnapshot()) : patch
     if ('timer' in next) mocks.timer = next.timer
     if ('work' in next) mocks.work = next.work
+    if ('okRows' in next) mocks.okRows = next.okRows
   }
   return { useUI }
 })
@@ -159,6 +161,8 @@ function workout(entries, cur = 0, overrides = {}) {
     workouts: [], exWeights: {}, routines: [],
     active: { id: 'active', name: 'Test workout', start: Date.now(), cur, entries, ...activeOverrides },
     ...stateOverrides,
+    // These tests press the +/- buttons, which My Gym switches off by default (lib/workout-controls.js).
+    wc: { steppers: true, ...(stateOverrides.wc || {}) },
   }
 }
 
@@ -273,6 +277,7 @@ beforeEach(() => {
   mocks.user = null
   mocks.timer = null
   mocks.work = null
+  mocks.okRows = undefined
   mocks.scrollCalls.length = 0
   mocks.headerHeight = 0
 })
@@ -3821,3 +3826,51 @@ describe('a set\'s own form video (v1.4.4)', () => {
   })
 })
 
+// My Gym's logging rows: last time's matching set beside each row, and an untouched row's numbers
+// (the session's suggestion) grey until taken: a tap on one, a change, or the tick.
+describe('My Gym logging rows', () => {
+  const target = { mode: 'reps', sets: 2, reps: 8, weight: 60, bodyweight: false }
+  const lastTime = {
+    workouts: [{ d: '2026-08-30', entries: [{ id: 'plain-bench', target, sets: [
+      { w: 20, r: 10, warmup: true, done: true }, { w: 57.5, r: 8, done: true }, { w: 57.5, r: 7, done: true },
+    ] }] }],
+  }
+  const today = () => [exercise('plain-bench', [], { target, sets: [
+    { w: 20, r: 10, warmup: true, done: false }, { w: 60, r: 8, done: false }, { w: 60, r: 8, done: false }, { w: 60, r: 8, done: false },
+  ] })]
+  const rows = () => [...container.querySelectorAll('.setrow')]
+  const rerender = () => act(async () => { root.render(React.createElement(Workout)) })
+
+  it('shows last time beside each row, warm-ups against warm-ups and work sets in their order', async () => {
+    await mount(today(), 0, { ...lastTime, wc: { steppers: false } })
+    expect(container.querySelector('.sethead .p-sp').textContent).toBe('Last time')
+    expect(rows().map(r => r.querySelector('.prevcell').textContent)).toEqual(['20 × 10', '57.5 × 8', '57.5 × 7', '–'])
+  })
+
+  it('has no column with the +/- buttons on, nor without a last time', async () => {
+    await mount(today(), 0, { ...lastTime, wc: { steppers: true } })
+    expect(container.querySelector('.prevcell')).toBeNull()
+    await unmount()
+    await mount(today(), 0, { wc: { steppers: false } })
+    expect(container.querySelector('.prevcell')).toBeNull()
+    expect(container.querySelector('.sethead .p-sp')).toBeNull()
+  })
+
+  // A change takes the row; the + and - buttons are the change this test DOM can make (a tap on the
+  // field itself takes it through the same accept(), on focus).
+  it('keeps an untouched row grey, and a change to one of its numbers takes it', async () => {
+    await mount(today(), 0, { ...lastTime, wc: { steppers: true } })
+    expect(rows().some(r => r.classList.contains('ok'))).toBe(false)
+    const plus = rows()[1].querySelector('.stp.w button[aria-label="Increase"]')
+    await act(async () => { plus.dispatchEvent(new dom.Event('click', { bubbles: true })) })
+    await rerender()
+    expect(rows().map(r => r.classList.contains('ok'))).toEqual([false, true, false, false])
+    // nothing about it reaches the session itself
+    expect(mocks.S.active.entries[0].sets.every(st => !('ok' in st))).toBe(true)
+  })
+
+  it('has no grey rows when a saved workout is being corrected', async () => {
+    await mount(today(), 0, { ...lastTime, wc: { steppers: false }, active: { editingWorkoutId: 'w1' } })
+    expect(rows().every(r => r.classList.contains('ok'))).toBe(true)
+  })
+})
