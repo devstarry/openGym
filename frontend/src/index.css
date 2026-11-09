@@ -410,7 +410,10 @@ button.conn:active{filter:brightness(1.12)}
    line in every language. The ellipsis is only the safety net (the strings are kept short), and
    text-overflow follows the text direction, so Arabic clips on its own end. */
 .hdr.lib-hdr{flex-wrap:wrap;align-items:center;row-gap:0}
-.hdr.lib-hdr>.lib-title{flex:1;min-width:0;margin-inline-start:12px}
+/* min-content, not 0: with a large text size the title must not break mid-word ("Exercise/s"); the
+   header wraps instead and "By muscle" drops under it. */
+.hdr.lib-hdr>.lib-title{flex:1 1 auto;min-width:min-content;margin-inline-start:12px}
+.hdr.lib-hdr>.lib-title h1{overflow-wrap:normal}
 .hdr.lib-hdr>.sub.lib-count{flex:1 0 100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:360px){.hdr.lib-hdr>.sub.lib-count{white-space:normal;overflow:visible;text-overflow:clip}}
 
