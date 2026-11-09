@@ -71,7 +71,7 @@ describe('buildWidgetSnapshot', () => {
 
   it('carries the accent and its words, and stands up to a thin state', () => {
     const snap = buildWidgetSnapshot(S(), { today: TODAY })
-    expect(snap.accent).toBe('#0a84ff')
+    expect(snap.accent).toBe('#385dff')
     expect(snap.ink).toBe('#ffffff')
     expect(buildWidgetSnapshot(S({ accent: 'custom', accentCustom: '#123456' }), { today: TODAY }).accent).toBe('#123456')
     for (const k of ['today', 'restDay', 'upNext', 'thisWeek', 'weekStreak', 'streak', 'lastPR', 'done', 'running']) {

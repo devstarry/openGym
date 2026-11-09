@@ -19,24 +19,26 @@
 /* ---------------------------------------------------------------- tokens -- */
 :root {
   /* surfaces — dark is the default */
-  --bg:        #000000;
-  --bg-el:     #0e0e10;   /* elevated backdrop (sheets, bars) */
-  --surface:   #1c1c1e;   /* card / grouped-list fill */
-  --surface-2: #2c2c2e;   /* pressed + nested fill */
-  --surface-3: #3a3a3c;   /* controls (segmented track, switch off) */
+  /* My Gym: near-black with a slight warm cast, steps a few points apart */
+  --bg:        #0b0b0d;
+  --bg-el:     #111114;   /* elevated backdrop (sheets, bars) */
+  --surface:   #151518;   /* card / grouped-list fill */
+  --surface-2: #1f1f23;   /* pressed + nested fill, inputs */
+  --surface-3: #2b2b30;   /* controls (segmented track, switch off) */
   /* Things that float over the page (the tour bubble, a dialog, the rest timer, a chart's tooltip,
      the back-to-top button): one step lighter than a card and edged with a hairline of light, so
      in the dark theme they read as lifted rather than as one more card under a shadow you cannot
      see on black (redesign 1.4.5, P11). In the light theme white with the shadow does that. */
-  --surface-raised: #2c2c2e;
+  --surface-raised: #1f1f23;
   --raised-line: rgba(255,255,255,.09);
 
-  /* text */
-  --label:     #ffffff;
-  --label-2:   rgba(235,235,245,.60);
-  --label-3:   rgba(235,235,245,.32);
-  --label-4:   rgba(235,235,245,.18);
-  --label-dim: rgba(235,235,245,.50);
+  /* text: 16.4:1, 7.2:1 and 3.6:1 on --surface. --label-3 is also the greyed next-set
+     suggestion, drawn large and bold, so 3:1 is its bar. */
+  --label:     #f4f3ee;
+  --label-2:   rgba(244,243,238,.64);
+  --label-3:   rgba(244,243,238,.40);
+  --label-4:   rgba(244,243,238,.20);
+  --label-dim: rgba(244,243,238,.54);
 
   /* lines */
   --sep:       rgba(84,84,88,.60);
@@ -47,11 +49,12 @@
   --blue:#0a84ff; --green:#30d158; --red:#ff453a; --orange:#ff9f0a;
   --yellow:#ffd60a; --teal:#40c8e0; --indigo:#5e5ce6; --pink:#ff375f;
   --purple:#bf5af2; --mint:#63e6e2; --brown:#ac8e68; --grey:#8e8e93;
+  --cobalt:#385dff;   /* My Gym's own blue, the default accent (the Blue preset) */
 
-  /* accent (per-account, synced) */
-  --acc:  var(--green);
-  --acc-2:#248a3d;
-  --on-acc:#000000;
+  /* accent (per-account, synced). The default is the Blue preset (below). */
+  --acc:  var(--cobalt);
+  --acc-2:#2a46c4;
+  --on-acc:#ffffff;
   --acc-soft: color-mix(in srgb, var(--acc) 16%, transparent);
   --acc-line: color-mix(in srgb, var(--acc) 38%, transparent);
   /* The accent as text, an icon or a focus ring: the accent itself in the dark theme. In the light
@@ -59,6 +62,10 @@
      so every accent-coloured word (Add set, Next, the progression line, links) takes a darker
      shade of the same hue that reaches 4.5:1 (design review 1.4.5). Fills keep --acc. */
   --acc-ink: var(--acc);
+
+  /* spacing: a 4 px grid, for new and redesigned components */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px;
+  --tap:48px;   /* the smallest thing a thumb is asked to hit (Android's minimum) */
 
   /* geometry */
   --r-sm:8px; --r:12px; --r-lg:16px; --r-xl:22px; --r-card:14px;
@@ -113,21 +120,20 @@
 }
 
 :root[data-theme="light"] {
-  --bg:        #f2f2f7;
-  --bg-el:     #f7f7fa;
+  --bg:        #f4f4f0;
+  --bg-el:     #f8f8f5;
   --surface:   #ffffff;
-  --surface-2: #ececef;
-  --surface-3: #e3e3e8;
+  --surface-2: #ecece7;
+  --surface-3: #e3e3dd;
   --surface-raised: #ffffff;
-  --raised-line: rgba(60,60,67,.10);
+  --raised-line: rgba(20,20,22,.10);
 
-  --label:     #000000;
-  /* .75, not the system's .60: at .60 the secondary text was 3.5:1 on a white card and 3.2:1 on
-     the grey page, under the 4.5:1 that 13-15px text needs. .75 is 5.2:1 and 4.9:1, still
-     plainly the second voice next to the black (design review 1.4.5). */
-  --label-2:   rgba(60,60,67,.75);
-  --label-3:   rgba(60,60,67,.30);
-  --label-4:   rgba(60,60,67,.16);
+  --label:     #141416;
+  /* .70 of the near-black is 6.8:1 on a white card, plainly the second voice. --label-3 at .50
+     (3.4:1) carries the greyed next-set suggestion, which is large and bold. */
+  --label-2:   rgba(20,20,22,.70);
+  --label-3:   rgba(20,20,22,.50);
+  --label-4:   rgba(20,20,22,.16);
   --label-dim: var(--label-2);
 
   --sep:       rgba(60,60,67,.29);
@@ -136,13 +142,15 @@
   --blue:#007aff; --green:#34c759; --red:#ff3b30; --orange:#ff9500;
   --yellow:#ffcc00; --teal:#30b0c7; --indigo:#5856d6; --pink:#ff2d55;
   --purple:#af52de; --mint:#00c7be; --brown:#a2845e; --grey:#8e8e93;
-  --acc-2:#248a3d;
+  --cobalt:#385dff;
+  --acc-2:#2a46c4;
+  --acc-ink:var(--acc);   /* #385dff reads at 5.0:1 on a white card */
   --on-acc:#ffffff;
 }
 
 /* accents — Apple's system colours, so a recolour never looks off-system */
 :root[data-accent="lime"]  { --acc:var(--green);  --acc-2:#248a3d; --on-acc:#000 }
-:root[data-accent="sky"]   { --acc:var(--blue);   --acc-2:#0060df; --on-acc:#fff }
+:root[data-accent="sky"]   { --acc:var(--cobalt); --acc-2:#2a46c4; --on-acc:#fff; --acc-ink:#7a94ff }
 :root[data-accent="orange"]{ --acc:var(--orange); --acc-2:#c76b00; --on-acc:#000 }
 :root[data-accent="violet"]{ --acc:var(--purple); --acc-2:#8944ab; --on-acc:#fff }
 :root[data-accent="pink"]  { --acc:var(--pink);   --acc-2:#d70036; --on-acc:#fff }
@@ -153,7 +161,7 @@
    colour of the user's own gets its --acc-ink inline from lib/accent.js (inkIn), to the same 4.5:1
    in both themes (redesign 1.4.5, P12). */
 :root[data-theme="light"][data-accent="lime"]  { --acc-ink:#1a7f37 }
-:root[data-theme="light"][data-accent="sky"]   { --acc-ink:#0062cc }
+:root[data-theme="light"][data-accent="sky"]   { --acc-ink:#385dff }
 :root[data-theme="light"][data-accent="orange"]{ --acc-ink:#a85200 }
 :root[data-theme="light"][data-accent="violet"]{ --acc-ink:#8944ab }
 :root[data-theme="light"][data-accent="pink"]  { --acc-ink:#d70036 }
@@ -184,6 +192,7 @@
     --blue:#5cb8ff; --green:#4ad968; --red:#ff6165; --orange:#ffa056;
     --yellow:#fedf43; --teal:#3bddec; --indigo:#a7aaff; --pink:#ff8ac4;
     --purple:#ea8dff; --mint:#54dfcb; --brown:#dba679; --grey:#aeaeb2;
+    --cobalt:#5a7bff;   /* black label 5.7:1 */
     --label-2:rgba(235,235,245,.78); --label-3:rgba(235,235,245,.55); --label-4:rgba(235,235,245,.36);
     --label-dim:rgba(235,235,245,.66);
     --sep:rgba(84,84,88,.95); --sep-op:rgba(84,84,88,.8);
@@ -193,6 +202,7 @@
     --blue:#1e6ef4; --green:#008932; --red:#e9152d; --orange:#c55300;
     --yellow:#a16a00; --teal:#008198; --indigo:#564ade; --pink:#e7124d;
     --purple:#b02fc2; --mint:#008575; --brown:#956d51; --grey:#6c6c70;
+    --cobalt:#2a4be0;   /* white label 6.6:1 */
     --label-2:rgba(60,60,67,.82); --label-3:rgba(60,60,67,.6); --label-4:rgba(60,60,67,.4);
     --label-dim:var(--label-2);
     --sep:rgba(60,60,67,.6); --sep-op:rgba(60,60,67,.5);
