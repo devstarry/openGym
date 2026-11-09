@@ -1,8 +1,7 @@
 // @vitest-environment happy-dom
 // QA C9. Custom exercises and the newer exercise metadata name muscles by the map's ids. The
 // picker row, the routine config sheet and the Muscles rows printed those ids ("gluteal",
-// "forearm", "hip-flexors") where the detail sheet already said Glutes / Forearms / Hip flexors —
-// and in German "forearm" stayed English, because only the display names have translations.
+// "forearm", "hip-flexors") where the detail sheet already said Glutes / Forearms / Hip flexors.
 import React, { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createRoot } from 'react-dom/client'
@@ -10,7 +9,6 @@ import { EXIDX, registerCustom } from './lib/exercises.js'
 import { DEF, useStore } from './store/useStore.js'
 import { useUI } from './store/useUI.js'
 import { _setLangState } from './lib/i18n-core.js'
-import de from './locales/de.js'
 import { exercisePicker, exConfigSheet } from './sheets.jsx'
 import MuscleExplorer from './components/MuscleExplorer.jsx'
 
@@ -82,33 +80,6 @@ describe('muscle names in the rows and tags (QA C9)', () => {
     // #207 Olympic lifts list their secondaries as map ids ('forearm', 'deltoids').
     exConfigSheet(EXIDX['0648'], null, vi.fn())
     expect(tags(renderTop())).toEqual(['hamstrings', 'barbell', 'Calves', 'Forearms', 'Shoulders'])
-  })
-
-  it('translates them in German too — "forearm" was staying English', () => {
-    _setLangState('de', de, null, null)
-    seed(custom())
-    exConfigSheet(EXIDX['0648'], null, vi.fn())
-    const tags = [...renderTop().querySelectorAll('.tag')].map(e => e.textContent.trim())
-    expect(tags).toEqual(['Beinbeuger', 'Langhantel', 'Waden', 'Unterarme', 'Schultern'])
-    exercisePicker(vi.fn())
-    const host = renderTop()
-    act(() => type(host.querySelector('input.input'), 'QA Custom'))
-    expect(rowFor(host, 'QA Custom Thrust').querySelector('.ss').textContent).toBe('Gesäß · Langhantel')
-  })
-
-  // The dataset's cardio target "cardiovascular system" is both a map id and a translated key
-  // of its own. Routing it through MUSCLE_NAME must not cost it its translation: the 29
-  // built-in cardio exercises read "Herz-Kreislauf" in German, never "Cardiovascular system".
-  // (Marching on the spot, since burpees count reps now, #717.)
-  it('keeps the cardio target translated (marching on the spot, de)', () => {
-    _setLangState('de', de, null, null)
-    exercisePicker(vi.fn())
-    const host = renderTop()
-    act(() => type(host.querySelector('input.input'), 'marching on spot'))
-    expect(rowFor(host, 'marching on spot').querySelector('.ss').textContent).toBe('Herz-Kreislauf · Körpergewicht')
-    exConfigSheet(EXIDX['4420'], null, vi.fn())
-    const tags = [...renderTop().querySelectorAll('.tag')].map(e => e.textContent.trim())
-    expect(tags).toEqual(['Cardio', 'Herz-Kreislauf', 'Körpergewicht'])
   })
 
   it('Muscles explorer row names the target the same way', () => {

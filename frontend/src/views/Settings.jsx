@@ -464,7 +464,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
   const ctx = {
     user, mobile: MOBILE, android, ios: MOBILE && ios, appIcons: MOBILE && !!platformNow(), demo: DEMO, wakeOK, hasMedia, pwOn, webauthn: webauthnOK(),
     sound: !!S.sound, playOnSilent: playOnSilentSupported(), canVibrate, vibrate: S.vibrate !== false,
-    profiles: (S.equipProfiles || []).length > 0, nameLang: EXERCISE_NAME_LANGS.includes(baseLang(lang)),
+    profiles: (S.equipProfiles || []).length > 0, nameLang: EXERCISE_NAME_LANGS.includes(baseLang(lang)), multiLang: Object.keys(LANGS).length > 1,
     pushOK: !MOBILE && pushSupported(), reminderOn: !!S.reminder?.on, nudge: !!S.reminder?.nudge,
     nfc: nfcOK, gymReminder,
     autoBackup: !!S.autoBackup, synced: !!sync, installTip: !MOBILE && !standalone(), androidWeb: IS_ANDROID, desktopWeb: !IS_ANDROID && !APPLE_UA,
@@ -848,7 +848,9 @@ export default function Settings({ page = null, find = null, via = null, entryKe
     </>,
 
     units: () => <>
-      <Section>
+      {/* My Gym ships English (UK) only (lib/i18n-core.js LANGS): with nothing to pick and no
+          translated names, the language section has nothing to show. */}
+      {Object.keys(LANGS).length > 1 && <Section>
         <SelectRow
           icon="globe" iconTint="var(--blue)" title={t('Language')}
           value={lang} onChange={v => update(s => { s.lang = v; s.langAuto = false })}
@@ -870,7 +872,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
               onChange={v => update(s => { s.enOnly = { ...(s.enOnly || {}), [baseLang(lang)]: v } })} />
           </Row>
         </>}
-      </Section>
+      </Section>}
       <Section footer={t('Switching the unit offers to convert every stored weight.')}>
         <Row icon="scale" iconTint="var(--teal)" title={t('Weight unit')}>
           <Segmented className="seg-inline"

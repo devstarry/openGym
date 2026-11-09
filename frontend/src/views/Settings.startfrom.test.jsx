@@ -114,18 +114,6 @@ describe('Settings — planned sessions start from', () => {
     act(() => sheetRoot.unmount())
     box.remove()
   })
-
-  it('adds the new subtitle to every locale and removes the old key', () => {
-    const locales = import.meta.glob('../locales/*.js', { eager: true })
-    const oldKey = 'The reps you logged last time in that routine, carried over. With progression off, the weight too.'
-    const newKey = 'The reps you logged last time in that routine, carried over, and any warm-ups you set up yourself. With progression off, the weight too.'
-    for (const module of Object.values(locales)) {
-      expect(module.default[newKey]).toBeTypeOf('string')
-      expect(module.default[newKey].trim()).not.toBe('')
-      expect(module.default[oldKey]).toBeUndefined()
-    }
-    expect(locales['../locales/tr.js'].default[newKey]).toBe('O rutinde geçen sefer kaydettiğin tekrarlar ve kendin ayarladığın ısınma setleri aktarılır. İlerleme kapalıysa ağırlık da.')
-  })
 })
 
 describe('Settings: last time means (#770)', () => {

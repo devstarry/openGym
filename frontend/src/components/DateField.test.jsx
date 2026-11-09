@@ -144,17 +144,6 @@ describe('DateField', () => {
     expect(blanks()).toBe(2)
   })
 
-  it('speaks the UI language', async () => {
-    await setLang('de')
-    const host = mount(<Harness initial="2026-08-25" />)
-    expect(host.querySelector('[data-datefield]').textContent).toMatch(/25\. Aug\. 2026|25\. Aug 2026/)
-    const p = openPicker(host)
-    expect(title(p)).toBe('August 2026')
-    expect(p.querySelector('[aria-label="Vorheriger Monat"]')).toBeTruthy()
-    expect(p.querySelector('.cal-h').textContent).toBe('Mo')
-    expect([...p.querySelectorAll('button')].some(b => b.textContent === 'Heute')).toBe(true)
-  })
-
   it('moves by keyboard: arrows by day and week, PageDown by month, clamped to max', () => {
     const host = mount(<Harness initial="2026-08-25" max="2026-09-02" />)
     const p = openPicker(host)

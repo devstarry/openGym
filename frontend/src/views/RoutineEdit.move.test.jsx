@@ -2,14 +2,11 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import React, { act } from 'react'
-import { LANGS, DERIVED_LOCALES } from '../lib/i18n-core.js'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import RoutineEdit from './RoutineEdit.jsx'
 import { DEF, useStore } from '../store/useStore.js'
-import { _setLangState } from '../lib/i18n-core.js'
-import de from '../locales/de.js'
 import { buildPlanBundle, parsePlan } from '../lib/plan-share.js'
 
 const cssSource = readFileSync(resolve(process.cwd(), 'src/index.css'), 'utf8')
@@ -78,7 +75,6 @@ function pointerActivateArea(button) {
 beforeEach(() => {
   localStorage.clear()
   mocks.exConfigSheet.mockClear()
-  _setLangState('en', null, null, null)
   root = null
   container = null
 })
@@ -86,7 +82,6 @@ beforeEach(() => {
 afterEach(() => {
   if (root) act(() => root.unmount())
   if (container) container.remove()
-  _setLangState('en', null, null, null)
 })
 
 describe('routine move controls', () => {
@@ -248,13 +243,12 @@ describe('routine move controls', () => {
     expect(localStorage.getItem('gym_state_v1')).toBeNull()
   })
 
-  it('uses localized accessible names and titles, retains button focus, and does not open config', () => {
-    _setLangState('de', de, null, null)
+  it('uses accessible names and titles, retains button focus, and does not open config', () => {
     setRoutine([entry('c1', 10), entry('c2', 20)])
     renderRoutine()
-    const button = moveButton('c2', 'Nach oben')
+    const button = moveButton('c2', 'Move up')
 
-    expect(button.title).toBe('Nach oben')
+    expect(button.title).toBe('Move up')
     button.focus()
     act(() => button.click())
 
@@ -277,17 +271,5 @@ describe('routine move controls', () => {
       entry('c1', 10, 'g'),
       entry('c3', 30)
     ])
-  })
-})
-
-describe('routine move-control locale coverage', () => {
-  const packs = import.meta.glob('../locales/*.js', { eager: true, import: 'default' })
-
-  it('defines both accessible names in every non-English locale pack', () => {
-    expect(Object.keys(packs)).toHaveLength(Object.keys(LANGS).filter(c => c !== 'en' && !DERIVED_LOCALES[c]).length)
-    Object.entries(packs).forEach(([path, pack]) => {
-      expect(pack, `${path} is missing Move up`).toHaveProperty('Move up')
-      expect(pack, `${path} is missing Move down`).toHaveProperty('Move down')
-    })
   })
 })

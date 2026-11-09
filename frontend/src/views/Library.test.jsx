@@ -8,7 +8,6 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Library from './Library.jsx'
 import { EXDB } from '../lib/exercises.js'
-import { CASED_NAME_LANGS, EXERCISE_NAME_LANGS, _setLangState } from '../lib/i18n-core.js'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
@@ -88,34 +87,12 @@ describe('Library favourites', () => {
   })
 })
 
-// #290 took the title-casing off every translated name; the packs stored lower-case then read
-// lower-case down the whole list. Only German's own casing is left alone.
-describe('Library exercise-name casing per language', () => {
-  const packs = import.meta.glob('../exercise-names/*.js', { eager: true, import: 'default' })
-  afterEach(() => _setLangState('en', {}, null, null))
-
-  for (const lang of EXERCISE_NAME_LANGS) {
-    it(`${lang}: every translated row is ${CASED_NAME_LANGS.includes(lang) ? 'left in its own casing' : 'title-cased'}`, () => {
-      const pack = packs[`../exercise-names/${lang}.js`]
-      _setLangState(lang, {}, null, pack)
-      // Starred so they render on the first page: a partial pack may not cover the first rows.
-      mocks.S.favEx = Object.keys(pack).slice(0, 3)
-      const rows = [...render().querySelectorAll('.item .tt')].slice(1)   // drop "Create your own"
-      expect(rows.length).toBeGreaterThan(0)
-      const translated = rows.filter(el => Object.values(pack).some(n => el.textContent.startsWith(n)))
-      expect(translated.length, lang).toBeGreaterThan(0)
-      for (const el of translated) expect(el.classList.contains('capitalize'), `${lang}: ${el.textContent}`).toBe(!CASED_NAME_LANGS.includes(lang))
-    })
-  }
-})
-
 // The header counts the catalogue, and from the first exercise of your own, those too (owner
 // request for v1.3.10): "1324 animated exercises + 5 of your own". It has to stay one line on a
 // phone, so it runs under the title row at full width, never wraps, and ellipsizes as a last resort.
 describe('Library header count', () => {
   const sub = host => host.querySelector('.hdr .sub').textContent
   const own = n => Array.from({ length: n }, (_, i) => ({ id: 'c' + i, n: 'my move ' + i, bp: 'chest', eq: '', custom: true }))
-  afterEach(() => _setLangState('en', {}, null, null))
 
   it('shows only the catalogue while you have no exercises of your own', () => {
     expect(sub(render())).toBe(`${EXDB.length} exercises with animations`)
@@ -129,21 +106,6 @@ describe('Library header count', () => {
   it('adds the count for several custom exercises', () => {
     mocks.S.customEx = own(5)
     expect(sub(render())).toBe(`${EXDB.length} animated exercises + 5 of your own`)
-  })
-
-  it('uses the language\'s own plural forms (Russian: 1 своё, 2 своих, 5 своих)', async () => {
-    const { default: ru } = await import('../locales/ru.js')
-    _setLangState('ru', ru, null, null)
-    const forms = ru['{1} animated exercises + {0} of your own']
-    expect(typeof forms).toBe('object')
-    mocks.S.customEx = own(1)
-    const one = sub(render())
-    act(() => { mounted.splice(0).forEach(root => root.unmount()) })
-    mocks.S.customEx = own(5)
-    const five = sub(render())
-    expect(one).toContain(String(EXDB.length))
-    expect(five).toBe(forms.many.replace('{0}', '5').replace('{1}', String(EXDB.length)))
-    expect(one).not.toBe(five.replace('5', '1'))
   })
 
   it('keeps the subtitle on one line on wider screens, clipping with an ellipsis', () => {

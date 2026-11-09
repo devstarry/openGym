@@ -25,7 +25,7 @@ api/        Backend: server.js (plain node:http) plus small testable modules bes
             openapi.yaml documents every route.
 web/        Multi-stage Dockerfile (builds frontend, adds catalogue/media, serves with nginx) and
             nginx.conf.template (serves the app, proxies /api).
-catalogue/  The exercise database: exercises/<id>.json, i18n/, licensed 180 px media/.
+catalogue/  The exercise database: exercises/<id>.json, i18n/ (empty in My Gym), licensed 180 px media/.
 mcp/        Optional stdio MCP server: reads DATA_DIR, and its one write tool (log_workout)
             saves through the api. Not in the Docker build.
 scripts/    Build, CI and release helpers (scripts/README.md).
@@ -113,9 +113,12 @@ machine, never in CI (see "Exercise media" below and docs/APP_STORES.md).
 - **`sheets.jsx`**: the bottom sheets (exercise picker, exercise config, workout detail, plan
   import...). It is large; a new sheet can go into `components/` as its own file.
 - **`components/`**: shared UI (charts, modals, timers, media).
-- **`locales/`**: one i18n pack per language, keyed by the English string (`lib/i18n.js`,
-  `i18n-core.js`). A new `t()` string goes into every pack; pt-BR inherits from pt and has a
-  fingerprint test (`scripts/pt-br-inheritance-fingerprint.mjs`).
+- **Language: English (UK) only.** This fork (My Gym, personal use) removed every other language:
+  `LANGS` in `lib/i18n-core.js` is `{ en }`, and `locales/`, `exercise-names/`, the non-English
+  `instr/` and `exercise-desc/` packs and `catalogue/i18n/*.json` are gone. Keep wrapping
+  user-facing text in `t()` (the i18n machinery is still there, and upstream code expects it),
+  but add **no translations**; `check-locales.mjs` and `check-source-strings.mjs` pass with no
+  packs. Write British English.
 
 ### API (`api/server.js`)
 

@@ -11,7 +11,7 @@
 // Only literal single-argument calls are collected — t(variable) and template literals are
 // resolved at runtime and are deliberately out of scope.
 
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
@@ -19,6 +19,11 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const srcDir = join(root, 'src')
 const localesDir = join(srcDir, 'locales')
 const strict = process.argv.includes('--strict')
+// My Gym ships English (UK) only: every string in the source is already the text shown.
+if (!existsSync(localesDir)) {
+  console.log('English only: no locale packs, nothing to translate.')
+  process.exit(0)
+}
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {

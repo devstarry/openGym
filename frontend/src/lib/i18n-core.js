@@ -3,23 +3,16 @@
 // (import.meta.glob lazy
 // loads, the React subscription hook) live in i18n.js and re-export from here.
 
-export const LANGS = {
-  en: 'English', de: 'Deutsch', 'de-CH': 'Deutsch (Schweiz)', es: 'Español', fr: 'Français',
-  it: 'Italiano', pt: 'Português (Portugal)', 'pt-BR': 'Português (Brasil)', pl: 'Polski',
-  tr: 'Türkçe', ru: 'Русский', uk: 'Українська', zh: '简体中文', 'zh-TW': '繁體中文',
-  ko: '한국어', hi: 'हिन्दी', bn: 'বাংলা', th: 'ไทย', hu: 'Magyar', sv: 'Svenska', ar: 'العربية'
-}
+// My Gym is English (UK) only: one person's app. The machinery below still takes a language, so
+// any profile or backup that names another one (a synced 'de', say) simply reads in English.
+export const LANGS = { en: 'English' }
 // Languages with exercise instructions / names, generated from catalogue/i18n by
 // scripts/catalogue/build.mjs. A pack can be partial; what it lacks shows in English.
 import { INSTR_LANGS, EXERCISE_NAME_LANGS } from './catalogue-langs.js'
 export { INSTR_LANGS, EXERCISE_NAME_LANGS }
 // Languages rendered right-to-left; i18n.js setLang applies the direction from this.
-export const RTL_LANGS = new Set(['ar'])
-export const DATE_LOCALES = {
-  en: 'en-GB', de: 'de-DE', 'de-CH': 'de-CH', es: 'es-ES', fr: 'fr-FR', it: 'it-IT',
-  pt: 'pt-PT', 'pt-BR': 'pt-BR',
-  pl: 'pl-PL', tr: 'tr-TR', ru: 'ru-RU', uk: 'uk-UA', zh: 'zh-CN', 'zh-TW': 'zh-TW', ko: 'ko-KR', hi: 'hi-IN', bn: 'bn-BD-u-nu-latn', th: 'th-TH', hu: 'hu-HU', sv: 'sv-SE', ar: 'ar-u-nu-latn'
-}
+export const RTL_LANGS = new Set()
+export const DATE_LOCALES = { en: 'en-GB' }
 
 // Locales derived from another language by a pure text transform rather than carried as their
 // own pack. Swiss Standard German has no ß — every one is written ss — so de-CH is de with a

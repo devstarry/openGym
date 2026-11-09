@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { LPROJ, PAGE_LOCALE, PHRASES, STRINGS, ANDROID } from '../../ios/ci/voice-strings.mjs'
+import { LPROJ, PHRASES, STRINGS, ANDROID } from '../../ios/ci/voice-strings.mjs'
 
 // Siri's words live in three places that have to agree: VoiceIntents.swift (the English keys and
 // phrases), the .lproj files ios/ci/voice-strings.mjs writes, and Settings → Siri & Shortcuts,
@@ -40,21 +40,6 @@ describe('VoiceIntents.swift and its strings', () => {
       }
       const words = lproj(lang, 'Localizable.strings')
       for (const [key, t] of Object.entries(STRINGS)) expect(words, `${lang} ${key}`).toContain(`"${key}" = "${t[lang]}";`)
-    }
-  })
-})
-
-describe('Settings → Siri & Shortcuts', () => {
-  const rows = { '“Start my workout in openGym”': 'Start my workout in {app}', '“Log my weight in openGym”': 'Log my weight in {app}', '“What’s my workout today in openGym”': "What's my workout today in {app}", '“How’s my streak in openGym”': "How's my streak in {app}" }
-  const bare = s => s.replace(/^[“„«「”]\s?|\s?[”“»」]$/g, '')
-
-  it('shows the phrases Siri listens for, in the page’s language', async () => {
-    for (const lang of LPROJ) {
-      const loc = PAGE_LOCALE[lang] || lang
-      const { default: pack } = await import(`../locales/${loc}.js`)
-      for (const [key, phrase] of Object.entries(rows)) {
-        expect(bare(pack[key]), `${loc} ${key}`).toBe(PHRASES[phrase][lang].replace('{app}', 'openGym'))
-      }
     }
   })
 })

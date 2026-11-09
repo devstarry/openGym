@@ -1,12 +1,11 @@
 // The printable plan (#149) and one routine on its own page (#282).
-import { afterEach, describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { planPrintHTML, printPlan } from './plan-share.js'
 import { PLACEHOLDER_PICTURE, MEDIA_CREDIT } from './print-pictures.js'
 import { EXIDX, registerCustom } from './exercises.js'
 import { printDocument } from './print-doc.js'
 
 vi.mock('./print-doc.js', async orig => ({ ...await orig(), printDocument: vi.fn(() => Promise.resolve()) }))
-import { CASED_NAME_LANGS, EXERCISE_NAME_LANGS, _setLangState } from './i18n-core.js'
 
 const S = {
   unit: 'kg',
@@ -61,23 +60,6 @@ describe('planPrintHTML', () => {
   })
 })
 
-// The printout title-cases a name with the same class the screen uses (exerciseNameClass): the
-// lower-case packs get it back, German keeps its own casing.
-describe('planPrintHTML exercise-name casing per language', () => {
-  const packs = import.meta.glob('../exercise-names/*.js', { eager: true, import: 'default' })
-  const nameClass = html => html.match(/<div class="ex-n ([^"]*)">/)?.[1].trim()
-  afterEach(() => _setLangState('en', {}, null, null))
-
-  for (const lang of EXERCISE_NAME_LANGS) {
-    it(`${lang}: ${CASED_NAME_LANGS.includes(lang) ? 'no title-casing on the translated name' : 'the translated name is title-cased'}`, () => {
-      _setLangState(lang, {}, null, packs[`../exercise-names/${lang}.js`])
-      const html = planPrintHTML(S, 'Ana', { routineId: 'pull' })
-      expect(nameClass(html)).toBe(CASED_NAME_LANGS.includes(lang) ? '' : 'capitalize')
-      expect(html).toContain('.ex-n.capitalize { text-transform: capitalize; }')
-    })
-  }
-})
-
 // QA 1.3.9: the printout read "3 × 12" for an 8–12 range, left the drop-set out, and glued an
 // untranslated body part onto the name ("…Curlupper Legs").
 describe('planPrintHTML prints the exercise as it is prescribed', () => {
@@ -88,19 +70,11 @@ describe('planPrintHTML prints the exercise as it is prescribed', () => {
       { id: '0027', sets: 1, mode: 'reps', reps: 8, weight: 40, intensifier: { type: 'restpause', totalReps: 20, restSec: 15 } },
     ] }],
   }
-  afterEach(() => _setLangState('en', {}, null, null))
 
   it('keeps the rep range and names the intensifier', () => {
     const body = text(planPrintHTML(S2, '', { routineId: 'r' }))
     expect(body).toContain('3 × 8–12 · 60 kg · Drop-set 2× −20%')
     expect(body).toContain('1 × 8 · 40 kg · Rest-pause 20 reps')
-  })
-
-  it('translates the body part and keeps it a separate word', () => {
-    _setLangState('de', { chest: 'Brust', 'Drop-set': 'Dropsatz' }, null, null)
-    const html = planPrintHTML(S2, '', { routineId: 'r' })
-    expect(html).toContain(' <span class="part">Brust</span>')
-    expect(text(html)).toContain('Dropsatz 2×')
   })
 })
 
@@ -125,23 +99,10 @@ describe('planPrintHTML page breaks', () => {
     expect(planPrintHTML(many, '')).not.toContain('class="ticks"')
   })
 
-  it('puts the English title of a translated name on its own line instead of in parentheses', () => {
-    _setLangState('de', {}, null, { '0025': 'Bankdrücken mit Langhantel' })
-    try {
-      const html = planPrintHTML(many, '', { routineId: 'r' })
-      expect(html).toContain('>Bankdrücken mit Langhantel <span class="part">')
-      expect(html).toContain('<div class="ex-en">barbell bench press</div>')
-    } finally { _setLangState('en', {}, null, null) }
-  })
-
-  it('carries page numbers in the reader’s language and no probe marks unless asked', () => {
-    _setLangState('de', { 'Page {0} of {1}': 'Seite {0} von {1}' }, null, null)
-    try {
-      const html = planPrintHTML(many, '')
-      expect(html).toContain('@bottom-right { content: "Seite " counter(page) " von " counter(pages); }')
-      expect(html).not.toContain('class="probe"')
-      expect(planPrintHTML(many, '', { probe: true })).toContain('<i class="probe">~s:')
-    } finally { _setLangState('en', {}, null, null) }
+  it('carries no probe marks unless asked', () => {
+    const html = planPrintHTML(many, '')
+    expect(html).not.toContain('class="probe"')
+    expect(planPrintHTML(many, '', { probe: true })).toContain('<i class="probe">~s:')
   })
 })
 
@@ -228,15 +189,11 @@ describe('planPrintHTML with pictures', () => {
     } finally { registerCustom([]) }
   })
 
-  it('reads right to left in Arabic, and never inverts a picture on paper', () => {
-    _setLangState('ar', {}, null, null)
-    try {
-      const html = planPrintHTML(S3, '', { pictures: { '0025': P } })
-      expect(html).toContain('dir="rtl"')
-      expect(html).toContain('padding-inline-start')
-      expect(html).toContain('filter: none !important')
-      expect(html).toContain('color-scheme: light')
-    } finally { _setLangState('en', {}, null, null) }
+  it('never inverts a picture on paper', () => {
+    const html = planPrintHTML(S3, '', { pictures: { '0025': P } })
+    expect(html).toContain('padding-inline-start')
+    expect(html).toContain('filter: none !important')
+    expect(html).toContain('color-scheme: light')
   })
 
   it('carries probe marks on every row for the layout check', () => {

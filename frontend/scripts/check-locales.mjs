@@ -10,11 +10,16 @@
 // The reference is the union of all locales, not one blessed file: a key added to a
 // single locale then flags the other ten instead of passing unnoticed.
 
-import { readdirSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const localesDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'locales')
+// My Gym ships English (UK) only and has no locale packs: there is nothing to compare.
+if (!existsSync(localesDir)) {
+  console.log('English only: no locale packs to check.')
+  process.exit(0)
+}
 const files = readdirSync(localesDir).filter(f => f.endsWith('.js')).sort()
 
 if (!files.length) {

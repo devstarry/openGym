@@ -16,7 +16,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import CoachIntake from './CoachIntake.jsx'
 import { requestPlan, disclosure } from '../lib/coach-api.js'
 import { CONSENT_VERSION, CATEGORY_TEXT } from '../lib/coach.js'
-import { setLang } from '../lib/i18n.js'
 import { consentTarget, hasAiConsent, aiConsents, _resetAiConsent } from '../lib/coach-consent.js'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -263,17 +262,13 @@ describe('CoachIntake — the consent screen', () => {
     expect(all('.ob-consent-row').map(r => r.querySelector('b').textContent)).toEqual(['Your plan', 'sleep'])
   })
 
-  it('names every category in the app’s language', async () => {
+  it('names every category', () => {
     // The screen used to pass these lines to t() as variables, which check-source-strings cannot
-    // see, and eight of the ten had no translation in any pack.
+    // see.
     const english = Object.values(CATEGORY_TEXT).map(text => text())
-    const de = (await import('../locales/de.js')).default
-    await setLang('de')
-    try {
-      mount()
-      expect(all('.ob-consent-row').map(r => [r.querySelector('b').textContent, r.querySelector('span').textContent]))
-        .toEqual(english.map(([title, sub]) => [de[title], de[sub]]))
-    } finally { await setLang('en') }
+    mount()
+    expect(all('.ob-consent-row').map(r => [r.querySelector('b').textContent, r.querySelector('span').textContent]))
+      .toEqual(english)
   })
 
   it('is skipped entirely once consent is on file', () => {
@@ -308,9 +303,9 @@ describe('CoachIntake — the two answers that gate the flow', () => {
     expect(eyebrow()).toBe('Schedule')
   })
 
-  it('names and describes every goal and starting point in the app’s language', async () => {
+  it('names and describes every goal and starting point', () => {
     // The screen used to pass these lines to t() as variables, which check-source-strings cannot
-    // see, and the eight descriptions had no translation in any pack.
+    // see.
     const goals = [
       ['Get stronger', 'Heavier lifts, lower reps.'],
       ['Build muscle', 'Volume and progression.'],
@@ -324,16 +319,12 @@ describe('CoachIntake — the two answers that gate the flow', () => {
       ['Training regularly', 'Consistent for a while now.']
     ]
     const choices = () => all('.ob-choice').map(c => [c.querySelector('.ob-choice-t').firstChild.textContent, c.querySelector('.ob-choice-s').textContent])
-    const de = (await import('../locales/de.js')).default
     mocks.S.coach = { consent: { agreedAt: '2026-09-01T00:00:00Z', version: CONSENT_VERSION }, profile: null, chat: [] }
-    await setLang('de')
-    try {
-      mount()
-      expect(choices()).toEqual(goals.map(([title, sub]) => [de[title], de[sub]]))
-      act(() => host.querySelector('.ob-choice').click())
-      cont()
-      expect(choices()).toEqual(experience.map(([title, sub]) => [de[title], de[sub]]))
-    } finally { await setLang('en') }
+    mount()
+    expect(choices()).toEqual(goals)
+    act(() => host.querySelector('.ob-choice').click())
+    cont()
+    expect(choices()).toEqual(experience)
   })
 
   // The app's own wheels (DurationWheel.jsx HourMinuteWheel), like every other time picker.

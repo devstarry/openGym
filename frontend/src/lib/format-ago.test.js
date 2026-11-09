@@ -1,8 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { fmtAgo, fmtDaysAgo, changeCount, setsWorkCount, fmtDur, fmtDate } from './format.js'
-import { _setLangState } from './i18n-core.js'
-import ar from '../locales/ar.js'
-import uk from '../locales/uk.js'
 
 // "Last synced: …" in Settings — the platform words it, in the UI language (en-GB here).
 describe('fmtAgo', () => {
@@ -29,44 +26,23 @@ describe('changeCount', () => {
 
 // The finish summary of a one-set workout read "1 sets · 1 work" (Android QA, v1.3.9).
 describe('setsWorkCount', () => {
-  afterEach(() => _setLangState('en', {}, null, null))
-
   it('has a singular', () => {
     expect(setsWorkCount(1, 1)).toBe('1 set · 1 work')
     expect(setsWorkCount(1, 0)).toBe('1 set · 0 work')
     expect(setsWorkCount(4, 3)).toBe('4 sets · 3 work')
   })
-
-  it('and the packs carry it', () => {
-    _setLangState('uk', uk, null, null)
-    expect(setsWorkCount(1, 1)).toBe(uk['{0} set · {1} work'].replace('{0}', '1').replace('{1}', '1'))
-    expect(uk['{0} set · {1} work']).not.toBe(uk['{0} sets · {1} work'])
-  })
 })
 
-// A session's length in the UI language. The units were Latin letters in every pack, so an
-// Arabic or Ukrainian History row read "34 min" and "1h 5m" in the middle of its own script.
+// A session's length.
 describe('fmtDur', () => {
-  afterEach(() => _setLangState('en', {}, null, null))
-
-  it('reads minutes, and hours with minutes past the hour, in English as before', () => {
+  it('reads minutes, and hours with minutes past the hour', () => {
     expect(fmtDur(34 * 60000)).toBe('34 min')
     expect(fmtDur(175 * 60000)).toBe('2h 55m')
-  })
-
-  it('uses each pack\'s own units', () => {
-    _setLangState('ar', ar, null, null)
-    expect(fmtDur(34 * 60000)).toBe('34 دقيقة')
-    expect(fmtDur(65 * 60000)).toBe('1 ساعة 5 دقيقة')
-    _setLangState('uk', uk, null, null)
-    expect(fmtDur(34 * 60000)).toBe('34 хв')
-    expect(fmtDur(65 * 60000)).toBe('1 год 5 хв')
   })
 })
 
 // The "Last time (…)" line of a workout (#363): calendar days back from the session's own day.
 describe('fmtDaysAgo', () => {
-  afterEach(() => _setLangState('en', {}, null, null))
   const day = '2026-10-04'
   const back = n => { const d = new Date(Date.UTC(2026, 9, 4 - n)); return d.toISOString().slice(0, 10) }
 
@@ -103,12 +79,5 @@ describe('fmtDaysAgo', () => {
 
   it('a day after the reference day (a clock set back) reads as today', () => {
     expect(fmtDaysAgo('2026-10-06', day)).toBe('today')
-  })
-
-  it('in the UI language, from the platform', () => {
-    _setLangState('de', {}, null, null)
-    expect(fmtDaysAgo(back(1), day)).toBe('gestern')
-    expect(fmtDaysAgo(back(3), day)).toBe('vor 3 Tagen')
-    expect(fmtDaysAgo(back(14), day)).toBe('vor 2 Wochen')
   })
 })

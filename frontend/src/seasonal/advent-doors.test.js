@@ -1,9 +1,6 @@
 // What is behind the doors (seasonal/advent-doors.js): the same for a day all year long, every
-// kind there, every string translated, every stretch a real catalogue hold.
+// kind there, every stretch a real catalogue hold.
 import { describe, expect, it } from 'vitest'
-import { readdirSync } from 'node:fs'
-import { join } from 'node:path'
-import { pathToFileURL } from 'node:url'
 import { DOOR_LIST, DOOR_STRINGS, SPECIAL, STRETCH, doorFor } from './advent-doors.js'
 import { EXIDX } from '../lib/exercises.js'
 
@@ -33,14 +30,6 @@ describe('the doors', () => {
 
   it('no em dashes, the copy rule', () => {
     for (const s of DOOR_STRINGS) expect(s).not.toMatch(/—/)
-  })
-
-  it('every string behind a door is in every locale pack', async () => {
-    const dir = join(__dirname, '..', 'locales')
-    for (const f of readdirSync(dir).filter(n => n.endsWith('.js'))) {
-      const pack = (await import(pathToFileURL(join(dir, f)).href)).default
-      expect(DOOR_STRINGS.filter(k => !pack[k]), f).toEqual([])
-    }
   })
 
   it('the stretch routine is made of catalogue holds', () => {
