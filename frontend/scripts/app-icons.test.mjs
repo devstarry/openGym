@@ -42,7 +42,9 @@ describe('generated icon files', () => {
   })
 
   it('match a fresh draw (the small ones; --check compares them all)', () => {
-    for (const v of APP_ICON_VARIANTS) {
+    // My Gym's default icon is its own artwork (resources/mygym-icon-source.png, CLAUDE.md), not a
+    // draw of the openGym glyph, so its preview is not compared. The other variants still are.
+    for (const v of APP_ICON_VARIANTS.filter(x => x.id !== 'default')) {
       expect(readFileSync(join(ROOT, `public/app-icons/${v.id}.png`)).equals(draw(v, PREVIEW)), v.id).toBe(true)
     }
     const sky = APP_ICON_VARIANTS.find(v => v.id === 'sky')

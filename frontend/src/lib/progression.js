@@ -23,6 +23,7 @@ import { normalizeRepRange } from './rep-range.js'
 import { isPyramid } from './pyramid.js'
 import { backoffAt } from './backoff.js'
 import { ownedWeightsFor, ownedKindFor, ownedUp, ownedDeload, ownedAround } from './dumbbells.js'
+import { rirOf, decideNext, STALLS_TO_DELOAD } from './rir-rules.js'
 
 export const POLICIES = ['off', 'linear', 'greyskull', 'double', 'triple', 'time']
 
@@ -53,7 +54,8 @@ export const POLICY_DESC = {
 // The Epley target is a soft objective mapped onto the exercise's real load grid. Keep the
 // default out of saved configs so plans written before this policy stays byte-for-byte compatible.
 export const DELOAD_FACTOR = 0.9
-export const DELOAD_AFTER = { linear: 3, greyskull: 1, double: 3, triple: 3, time: 3 }
+// My Gym: double progression deloads after STALLS_TO_DELOAD (2) stalled sessions (lib/rir-rules.js).
+export const DELOAD_AFTER = { linear: 3, greyskull: 1, double: STALLS_TO_DELOAD, triple: 3, time: 3 }
 export const DELOAD_FACTOR_MIN = 0.5
 export const DELOAD_FACTOR_MAX = 0.95
 
@@ -314,8 +316,11 @@ export function readSession(entry, fallback) {
   const top = step > 0 && sets.length ? Number(sets[0].w) || 0 : 0
   const heavyEnough = (s, k) => !(top > 0) || k === 0 || (Number(s.w) || 0) >= backoffAt(top, k, step) - 0.05
   const reps = sets.map((s, k) => (s.done && heavyEnough(s, k) ? (s.r || 0) : 0))
+  // My Gym: each planned set's reps in reserve (lib/rir-rules.js rirOf), null where none was logged
+  // or the set was not done. Double progression reads it; every other policy ignores it.
+  const rirs = sets.map(s => (s.done ? rirOf(s) : null))
   return {
-    mode, target, goal, reps,
+    mode, target, goal, reps, rirs,
     weight: loadOf(entry, sets),
     count: reps.length,                                   // the dimension bodyweight work grows (#33)
     low: reps.length ? Math.min(...reps) : 0,
@@ -700,19 +705,27 @@ export function nextPrescription(S, cfg, routine) {
     // from before the exercise moved to double progression. Hitting it is compliance with that
     // session, not "reached the top". Double progression must not add weight until every set
     // actually reaches the top of the range (issue #278).
-    if (last.ok && last.low >= top) {
+    // My Gym: what to do is decided by lib/rir-rules.js decideNext (double progression read with the
+    // sets' RIR, plain double progression where none was logged); the weight it lands on is worked
+    // out here, with the grid, the bells you own and the assistance machines as before.
+    const decision = decideNext(last, range, { repStep: repStep(cfg), stalls, stallsToDeload: deloadAt })
+    if (decision.kind === 'up') {
       if (topped(w)) return toppedOut(w, { reps: top })
       const up = harder(w, inc)
       // Over owned bells the step is whatever the next one is: 9 → 11 is 2 kg, 18 → 19 is 1.
       const by = owned ? Math.round((up - w) * 100) / 100 : inc
+      const spare = decision.reason === 'top-with-reserve'
       return {
         policy, kind: 'up', weight: up, reps: bottom,
         why: assisted
-          ? ['Top of the rep range in every set. {0} {1} less help, back to {2} reps.', inc, unit, bottom]
-          : ['Top of the rep range in every set. {0} {1} more, back to {2} reps.', by, unit, bottom]
+          ? [spare ? 'Top of the rep range in every set, with reps to spare. {0} {1} less help, back to {2} reps.' : 'Top of the rep range in every set. {0} {1} less help, back to {2} reps.', inc, unit, bottom]
+          : [spare ? 'Top of the rep range in every set, with reps to spare. {0} {1} more, back to {2} reps.' : 'Top of the rep range in every set. {0} {1} more, back to {2} reps.', by, unit, bottom]
       }
     }
-    if (stalls >= deloadAt) {
+    if (decision.kind === 'repeat') {
+      return { policy, kind: 'hold', weight: w, reps: top, why: ['Top of the range, but the last set went to failure. Same again, with a rep left in the tank.'] }
+    }
+    if (decision.kind === 'deload') {
       const selected = epleyDeload()
       if (selected) return selected
       const dw = easier(w)
@@ -723,8 +736,8 @@ export function nextPrescription(S, cfg, routine) {
           : ['Stuck for {0} sessions. Deload to {1} {2}.', stalls, dw, unit]
       }
     }
-    const aim = Math.min(top, Math.max(bottom, last.low + repStep(cfg)))
-    return { policy, kind: 'hold', weight: w, reps: aim, why: ['Same weight, aim for {0} reps this time.', aim] }
+    if (decision.reason === 'easy') return { policy, kind: 'hold', weight: w, reps: decision.reps, why: ['Plenty left in the tank last time. Same weight, aim for {0} reps.', decision.reps] }
+    return { policy, kind: 'hold', weight: w, reps: decision.reps, why: ['Same weight, aim for {0} reps this time.', decision.reps] }
   }
 
   // linear + greyskull
