@@ -9,6 +9,7 @@ import { useStore } from '../store/useStore.js'
 import { t } from '../lib/i18n.js'
 import { todayISO } from '../lib/format.js'
 import { deloadDue, deloadWeekOn, daysBetween, DELOAD_EVERY_WEEKS } from '../lib/rir-rules.js'
+import { programmeStatus } from '../lib/programmes.js'
 import { Button } from './ui.jsx'
 import Icon from './Icon.jsx'
 
@@ -25,6 +26,10 @@ export default function DeloadCard() {
       <Button size="sm" variant="ghost" onClick={() => update(s => { s.deloadWeek = { ...s.deloadWeek, ended: today } })}>{t('End the deload week')}</Button>
     </div>
   }
+  // A training block that is running has its own deload week (the Coach writes one into every
+  // block): no second offer on top of it.
+  const block = programmeStatus(S, today)
+  if (block && !block.done && !block.paused) return null
   const days = (S.workouts || []).map(w => w.d).filter(Boolean).sort()
   const due = deloadDue({ today, firstWorkout: days[0], lastDeload: week?.start, skipped: S.deloadSkipped, weeks: S.deloadEvery || DELOAD_EVERY_WEEKS })
   if (!due.due) return null

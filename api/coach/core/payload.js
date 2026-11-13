@@ -110,6 +110,8 @@ function cleanProfile(profile) {
     // Weekdays 0-6, each once: seven entries is the whole week, so anything past that is noise.
     preferredDays: [...new Set(days.map(weekday).filter(d => Number.isInteger(d) && d >= 0 && d <= 6))],
     sessionMin: count(profile.sessionMin, 1, 24 * 60),
+    // My Gym: how many weeks the training block runs, deload week included (the intake's own question).
+    blockWeeks: count(profile.blockWeeks, 2, 12),
     equipment: equipment.filter(e => typeof e === 'string' && e).slice(0, PROFILE_EQUIPMENT_MAX).map(e => e.slice(0, PROFILE_WORD_MAX)),
     limitations: text(profile.limitations, PROFILE_TEXT_MAX.limitations),
     likes: text(profile.likes, PROFILE_TEXT_MAX.likes),

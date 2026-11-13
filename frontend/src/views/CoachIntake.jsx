@@ -71,12 +71,14 @@ export default function CoachIntake() {
   // changed and CONSENT_VERSION moved) reads the new terms and goes back to the Coach. Without
   // this the redirect from the chat replayed all seven questions and ended in a new plan request.
   const [reconsentOnly] = useState(() => !editing && !hasConsent(S) && !!S.coach?.profile)
-  const STEPS = reconsentOnly ? ['consent'] : [...(needConsent ? ['consent'] : []), 'goal', 'experience', 'days', 'length', 'equipment', 'limits', 'extras']
+  const STEPS = reconsentOnly ? ['consent'] : [...(needConsent ? ['consent'] : []), 'goal', 'experience', 'days', 'length', 'block', 'equipment', 'limits', 'extras']
   const [step, setStep] = useState(0)
   const [busy, setBusy] = useState(false)
   const [p, setP] = useState(() => ({
     goal: null, experience: null, daysPerWeek: 3, preferredDays: defaultTrainingDays(3),
     // A home gym already set up under Settings → Equipment is the best first guess here.
+    // My Gym: the training block the Coach writes with the plan, deload week included.
+    blockWeeks: 5,
     sessionMin: 60, equipment: (activeProfile(S)?.equipment || []).filter(e => EQUIPMENT.includes(e)), limitations: '', likes: '', dislikes: '', notes: '',
     ...(S.coach?.profile || {})
   }))
@@ -210,6 +212,15 @@ export default function CoachIntake() {
         <HourMinuteWheel value={p.sessionMin || 60} onChange={m => set({ sessionMin: m })} min={10} />
         <div className="ob-quick">
           {QUICK_MIN.map(m => <button key={m} className={'chip' + (p.sessionMin === m ? ' on' : '')} onClick={() => set({ sessionMin: m })}>{m} {t('min')}</button>)}
+        </div>
+      </>}
+
+      {key === 'block' && <>
+        <div className="ob-eyebrow">{t('Training block')}</div>
+        <h1 className="ob-h">{t('How long is a training block?')}</h1>
+        <p className="ob-p">{t('Effort builds week by week, from 3 reps left in the tank to 1, and the last week is a lighter deload week. Then the next block starts.')}</p>
+        <div className="ob-quick">
+          {[4, 5, 6].map(n => <button key={n} className={'chip' + ((p.blockWeeks ?? 5) === n ? ' on' : '')} aria-pressed={(p.blockWeeks ?? 5) === n} onClick={() => set({ blockWeeks: n })}>{t('{0} weeks', n)}</button>)}
         </div>
       </>}
 

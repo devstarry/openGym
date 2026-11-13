@@ -93,6 +93,15 @@ export const CREATE_SCHEMA = {
     customEx: {
       type: 'array',
       items: { type: 'object', properties: { id: STR, n: STR, bp: STR, desc: STR }, required: ['id', 'n'] }
+    },
+    // My Gym: the training block the plan runs as (create.md, validatePlan).
+    programme: {
+      type: 'object',
+      properties: {
+        name: STR,
+        weeks: { type: 'array', maxItems: 12, items: { type: 'object', properties: { rpe: { type: 'number' }, deload: { type: 'boolean' } } } }
+      },
+      required: ['weeks']
     }
   },
   required: ['coach_contract', 'week', 'routines']

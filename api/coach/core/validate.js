@@ -236,6 +236,42 @@ export function validatePlan(data, ctx = {}) {
     errors.push(`the week schedules ${Object.keys(week).length} days but ${want} were asked for`);
   }
 
+  // My Gym: the training block (mesocycle) the plan runs as (create.md). Asked for whenever the
+  // intake gave a length (`ctx.blockWeeks`); optional otherwise, so a refine of a plan from before
+  // still goes through. Weeks of a week-wide RPE (6-10, in halves) and a deload week; no targets
+  // per exercise, since the progression engine sets the numbers. It travels in the plan-file
+  // format (`programme_fmt`, `programmes`), over the plan's own week, and mergePlan imports it
+  // never started (frontend lib/plan-share.js, lib/programmes.js importedProgramme).
+  let programme = null;
+  const blockWeeks = isInt(ctx.blockWeeks, 2, 12) ? ctx.blockWeeks : null;
+  if (data.programme == null) {
+    if (blockWeeks) errors.push(`programme is missing: write the ${blockWeeks}-week training block (weeks of rpe, the last one the deload)`);
+  } else if (typeof data.programme !== 'object' || Array.isArray(data.programme) || !Array.isArray(data.programme.weeks)) {
+    errors.push('programme must be an object with a weeks array');
+  } else {
+    const raw = data.programme.weeks;
+    if (raw.length < 2 || raw.length > 12) errors.push(`programme.weeks has ${raw.length} weeks; a block runs 2-12`);
+    else if (blockWeeks && raw.length !== blockWeeks) errors.push(`programme.weeks has ${raw.length} weeks but ${blockWeeks} were asked for`);
+    const weeks = raw.slice(0, 12).map((w, i) => {
+      const out = {};
+      if (!w || typeof w !== 'object' || Array.isArray(w)) { errors.push(`programme.weeks[${i}] must be an object`); return out; }
+      if (w.deload === true) out.deload = true;
+      if (w.rpe != null) {
+        const rpe = Number(w.rpe);
+        if (!Number.isFinite(rpe) || rpe < 6 || rpe > 10) errors.push(`programme.weeks[${i}].rpe must be 6-10`);
+        else if (!out.deload) out.rpe = Math.round(rpe * 2) / 2;
+      }
+      return out;
+    });
+    if (!weeks.some(w => w.deload)) errors.push('programme needs a deload week (usually the last): { "deload": true }');
+    if (!Object.keys(week).length) errors.push('programme needs the plan\'s week to schedule its routines');
+    programme = {
+      name: clampStr(data.programme.name || data.name || 'Training block', 80),
+      weeks,
+      days: Object.fromEntries(Object.entries(week).map(([d, rid]) => [d, [rid]]))
+    };
+  }
+
   if (errors.length) return fail(errors);
   return {
     ok: true,
@@ -244,7 +280,8 @@ export function validatePlan(data, ctx = {}) {
       name: clampStr(data.name || 'Coach plan', 40),
       summary: clampStr(data.summary || '', 1200),
       basedOn: clampStr(data.basedOn || '', 400),
-      week, routines, customEx
+      week, routines, customEx,
+      ...(programme ? { programme_fmt: 1, programmes: [programme] } : {})
     }
   };
 }

@@ -410,6 +410,7 @@ export function profileLines(p) {
   if (exp) lines.push(t(exp))
   if (p.daysPerWeek) lines.push(tn('1 day a week', '{0} days a week', p.daysPerWeek))
   if (p.sessionMin) lines.push(t('{0} min per session', p.sessionMin))
+  if (p.blockWeeks) lines.push(t('{0}-week training block', p.blockWeeks))
   if (p.equipment?.length) lines.push(p.equipment.join(', '))
   if (p.limitations) lines.push(t('Limits: {0}', p.limitations))
   if (p.likes) lines.push(t('Likes: {0}', p.likes))
@@ -438,7 +439,13 @@ export function applyCreatedPlan(s, proposal, { schedule } = {}) {
     routines: bundle.routines.map(r => ({ ...r, why: undefined, ex: r.ex.map(e => ({ ...e, why: undefined, name: undefined })) })),
     customEx: (bundle.customEx || []).map(c => { const { url, media, ...rest } = c || {}; return rest })
   }
+  const had = new Set(Object.keys(s.programmes && typeof s.programmes === 'object' ? s.programmes : {}))
   const res = mergePlan(s, stripped, { schedule })
+  // My Gym: a plan the Coach wrote with its training block brings the block in too (never started);
+  // Undo takes it away again with the routines.
+  const block = Object.keys(s.programmes && typeof s.programmes === 'object' ? s.programmes : {}).find(id => !had.has(id))
+  const snaps = coachOf(s).snapshots || []
+  if (block && snaps.length) snaps[snaps.length - 1].programmeRestore = { id: block }
   // Only when the week actually moved — with the switch off the old schedule still stands, and
   // so do the reschedules made against it.
   if (schedule) sweepDayPlan(s, todayISO())

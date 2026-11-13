@@ -153,7 +153,7 @@ describe('CoachIntake — the consent screen', () => {
     expect(Date.parse(mocks.S.coach.consent.agreedAt)).not.toBeNaN()
     expect(mocks.S.coach.profile).toBe(null)          // nothing else written yet
     expect(eyebrow()).toBe('Your goal')
-    expect(all('.ob-dot')).toHaveLength(7)
+    expect(all('.ob-dot')).toHaveLength(8)   // My Gym adds the training block's length
   })
 
   it('agreeing is also the yes for the provider it names, so the data-sharing sheet does not ask again', async () => {
@@ -344,7 +344,7 @@ describe('CoachIntake — the two answers that gate the flow', () => {
     spin(minutes, 'ArrowUp')
     expect(host.querySelector('.dw-read').textContent).toBe('0:15')
     cont()
-    expect(eyebrow()).toBe('Equipment')
+    expect(eyebrow()).toBe('Training block')   // My Gym: the block's length comes next
   })
 })
 
@@ -383,10 +383,10 @@ describe('CoachIntake — moving around', () => {
     expect(footBtn().textContent).toContain('Build my plan')
   })
 
-  it('the dots count the seven questions and follow the one on screen', () => {
+  it('the dots count the eight questions and follow the one on screen', () => {
     mount(); walkTo('Your goal')
     const at = () => all('.ob-dot').findIndex(d => d.classList.contains('on'))
-    expect(all('.ob-dot')).toHaveLength(7)
+    expect(all('.ob-dot')).toHaveLength(8)   // My Gym adds the training block's length
     expect(at()).toBe(0)
     walkTo('Schedule')
     expect(at()).toBe(2)
