@@ -13,6 +13,7 @@
 import { glyphStr } from './glyphs.js';
 import { LIBRARY, LIB_BY_ID, libraryHas, libraryName, librarySlice, swapSlice, isStretch, MAX_LIBRARY, ownsNoDumbbells } from './library.js';
 import { muscleLoad, gymOf, challengesOf } from './context.js';
+import { progressionOf, deloadOf, cleanVolume } from './progression-data.js';
 
 export const CONTRACT = 1;
 // Bounds from FR-22. A review reads a training block, not a training career: more history
@@ -355,9 +356,12 @@ export function cleanPlan(S, now) {
 export { LIBRARY, MAX_LIBRARY, libraryHas, libraryName, librarySlice, isStretch };
 
 /* ---------- effort scale (mirrors history.js effortOf) ---------- */
+// My Gym logs RIR unless the profile chose otherwise, as the app's effortOf now reads it. The
+// Effort module switched off (Settings → Modules) still means no ratings at all.
 const effortOf = S => {
+  if (S && S.modules && typeof S.modules === 'object' && S.modules.effort === false) return 'none';
   const e = S && S.effort;
-  return e === 'none' || e === 'rir' || e === 'rpe' ? e : (S && S.showRir ? 'rir' : 'none');
+  return e === 'none' || e === 'rir' || e === 'rpe' ? e : 'rir';
 };
 
 /* ---------- window + aggregates ---------- */
@@ -636,6 +640,18 @@ export function build(S, opts = {}) {
     if (gym) p.gym = gym;
     const challenges = opts.kind === 'review' || opts.kind === 'ask' ? challengesOf(S, now) : null;
     if (challenges) p.challenges = challenges;
+  }
+  // My Gym: what the progression engine is working with and will do next, per exercise in the
+  // plan (core/progression-data.js), the deload-week dates, and the app's weekly-sets-per-muscle
+  // table against the person's targets (handed in by the app as `opts.volume`). A plan, a review
+  // and a question get them; a debrief and a change mid-workout read one session and do not.
+  if (opts.kind === 'create' || opts.kind === 'review' || opts.kind === 'ask') {
+    const progression = progressionOf(S);
+    if (progression.length) p.progression = progression;
+    const deload = deloadOf(S);
+    if (deload) p.deload = deload;
+    const volume = cleanVolume(opts.volume);
+    if (volume.length) p.volume = volume;
   }
   // Someone who set up a home gym under Settings → Equipment and left the Coach's own equipment
   // question empty was handed the whole catalogue, leverage machines and all. The profile they

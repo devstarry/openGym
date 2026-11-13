@@ -2542,6 +2542,11 @@ main.api-main .lead { color: var(--fg-2); max-width: 58ch; margin: 14px 0 0; fon
     <span class="p-desc">A change asked for in plain words, applied to the proposal now waiting. Cut to the instance's <code>maxMessageLen</code> (1000 unless the admin changed it; 200–4000).</span>
   </div>
   <div class="prow">
+    <span class="p-name">volume</span>
+    <span class="p-type">object[]</span>
+    <span class="p-desc">My Gym: the app's weekly-sets-per-muscle table over the last 7 days, as the app shows it (<code>slug</code>, <code>name</code>, <code>sets</code>, <code>lo</code>, <code>hi</code>, <code>status</code>). Kept on the job in memory only; the payload builder bounds and types it. Optional.</span>
+  </div>
+  <div class="prow">
     <span class="p-name">lang</span>
     <span class="p-type">string</span>
     <span class="p-desc">The language the app is showing, which the Coach writes in. Absent or not a language tag, the profile's stored <code>lang</code> is used.</span>
@@ -2606,6 +2611,11 @@ main.api-main .lead { color: var(--fg-2); max-width: 58ch; margin: 14px 0 0; fon
     <span class="p-desc">Anything the profile wants the Coach to know this time round. Cut to the instance's <code>maxMessageLen</code> (1000 unless the admin changed it; 200–4000).</span>
   </div>
   <div class="prow">
+    <span class="p-name">volume</span>
+    <span class="p-type">object[]</span>
+    <span class="p-desc">My Gym: the app's weekly-sets-per-muscle table over the last 7 days, as the app shows it (<code>slug</code>, <code>name</code>, <code>sets</code>, <code>lo</code>, <code>hi</code>, <code>status</code>). Kept on the job in memory only; the payload builder bounds and types it. Optional.</span>
+  </div>
+  <div class="prow">
     <span class="p-name">lang</span>
     <span class="p-type">string</span>
     <span class="p-desc">The language the app is showing, which the Coach writes in. Absent or not a language tag, the profile's stored <code>lang</code> is used.</span>
@@ -2662,6 +2672,11 @@ main.api-main .lead { color: var(--fg-2); max-width: 58ch; margin: 14px 0 0; fon
     <span class="p-name">today</span>
     <span class="p-type">object</span>
     <span class="p-desc">The session running on the device (<code>entries</code> with their sets), or absent.</span>
+  </div>
+  <div class="prow">
+    <span class="p-name">volume</span>
+    <span class="p-type">object[]</span>
+    <span class="p-desc">My Gym: the app's weekly-sets-per-muscle table over the last 7 days, as the app shows it (<code>slug</code>, <code>name</code>, <code>sets</code>, <code>lo</code>, <code>hi</code>, <code>status</code>). Kept on the job in memory only; the payload builder bounds and types it. Optional.</span>
   </div>
   <div class="prow">
     <span class="p-name">lang</span>

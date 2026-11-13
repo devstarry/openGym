@@ -12,11 +12,13 @@ const { buildPrompt } = await import('../coach/core/prompt.js');
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'coach', 'prompts');
 
+// Byte for byte apart from line endings, which the build normalises: a Windows checkout has the .md
+// files with CRLF (core.autocrlf), and the prompts carry plain newlines on every platform.
 test('core/prompts.js matches api/coach/prompts/*.md byte for byte', () => {
   const files = fs.readdirSync(dir).filter(f => f.endsWith('.md')).sort();
   assert.deepEqual(Object.keys(PROMPTS).sort(), files.map(f => f.replace(/\.md$/, '')));
   for (const f of files) {
-    assert.equal(PROMPTS[f.replace(/\.md$/, '')], fs.readFileSync(path.join(dir, f), 'utf8'), `${f} is stale — run node scripts/build-coach-assets.mjs`);
+    assert.equal(PROMPTS[f.replace(/\.md$/, '')], fs.readFileSync(path.join(dir, f), 'utf8').replace(/\r\n/g, '\n'), `${f} is stale — run node scripts/build-coach-assets.mjs`);
   }
 });
 

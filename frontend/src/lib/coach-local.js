@@ -32,6 +32,7 @@ import { getApiKey } from './coach-secrets.js'
 import { loadCoachDevice, saveCoachDevice, coachLimits } from './coach-device.js'
 import { planHash } from './coach.js'
 import { todayISO } from './format.js'
+import { recentMuscleSets } from './muscle-targets.js'
 import { t, getLang } from './i18n.js'
 
 export const ADAPTERS = { anthropic, openai, gemini, compatible }
@@ -205,6 +206,8 @@ async function run(S, kind, opts, d, adapter) {
   const key = await getApiKey()
   const payload = payloadLib.build(S, {
     handle: await handle(), kind, intake: opts.intake, note: opts.note, refine: opts.refine, previous: opts.previous, workoutId: opts.workoutId, today: opts.today, focus: opts.focus,
+    // My Gym: the app's weekly-sets-per-muscle table over the last 7 days (lib/muscle-targets.js).
+    volume: recentMuscleSets(S),
     lang: getLang()   // what the app shows, which a profile that never picked a language does not store (#303)
   })
   const model = d.model || HTTP_PROVIDERS[d.provider].defaultModel

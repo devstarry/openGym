@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { weeklyMuscleSets, targetOf, statusOf, mostRoom, withTarget, DEFAULT_TARGETS } from './muscle-targets.js'
+import { weeklyMuscleSets, recentMuscleSets, targetOf, statusOf, mostRoom, withTarget, DEFAULT_TARGETS } from './muscle-targets.js'
 
 const BENCH = '0025', SQUAT = '0043'
 const TODAY = '2026-10-28'   // a Wednesday
@@ -39,5 +39,26 @@ describe('weekly sets per muscle', () => {
     const rows = [{ slug: 'a', sets: 0, lo: 4, status: 'below' }, { slug: 'b', sets: 5, lo: 10, status: 'below' }, { slug: 'c', sets: 30, lo: 10, status: 'above' }]
     expect(mostRoom(rows).slug).toBe('a')
     expect(mostRoom([{ slug: 'c', status: 'in' }])).toBe(null)
+  })
+})
+
+// The table a weekly review reads (My Gym's AI Coach): the last 7 days, not the calendar week, so a
+// review on a Monday is not looking at an empty week.
+describe('recent sets per muscle', () => {
+  const BENCH = '0025'   // barbell bench press: chest
+  const day = (d, n) => ({ d, entries: [{ id: BENCH, sets: Array.from({ length: n }, () => ({ w: 60, r: 8, done: true })) }] })
+  const chest = rows => rows.find(r => r.slug === 'chest')
+  test('counts the last seven days, today included, and nothing older or newer', () => {
+    const S = { workouts: [day('2026-11-02', 5), day('2026-11-03', 3), day('2026-11-09', 4), day('2026-11-10', 9)] }
+    expect(chest(recentMuscleSets(S, '2026-11-09')).sets).toBe(7)
+    expect(chest(recentMuscleSets(S, '2026-11-09', 8)).sets).toBe(12)
+  })
+  test('carries the target range and the status, like the weekly table', () => {
+    const r = chest(recentMuscleSets({ workouts: [day('2026-11-09', 4)], muscleTargets: { chest: [6, 12] } }, '2026-11-09'))
+    expect(r).toMatchObject({ slug: 'chest', sets: 4, lo: 6, hi: 12, status: 'below' })
+  })
+  test('crosses a clock change by calendar days', () => {
+    const S = { workouts: [day('2026-10-20', 2), day('2026-10-21', 3)] }
+    expect(chest(recentMuscleSets(S, '2026-10-27')).sets).toBe(3)   // UK clocks went back on the 25th
   })
 })

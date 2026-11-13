@@ -73,7 +73,7 @@ export const coachAvailable = (config, user, { demo, mobile, coachMode } = {}) =
 // check-source-strings sees every key. When the screens passed these to t() as variables the
 // checker could not see them, and eight of the ten had no translation in any pack.
 export const CATEGORY_TEXT = {
-  plan: () => [t('Your plan'), t('Routines, exercises, sets and reps, warm-ups, programmes, your weekly schedule, progression settings and what your gym can load.')],
+  plan: () => [t('Your plan'), t('Routines, exercises, sets and reps, warm-ups, programmes, your weekly schedule, progression settings, your deload weeks and what your gym can load.')],
   training: () => [t('Your logged training'), t('Sets you logged in the review window: weights, reps, times, effort ratings, how long sessions took, and your session notes.')],
   bodyweight: () => [t('Body weight'), t('Weigh-ins from the same window, and your goal weight if you set one.')],
   profile: () => [t('What you tell the Coach'), t('Your intake answers, including any limitations or injuries you describe.')],

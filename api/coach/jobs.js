@@ -249,6 +249,10 @@ export function enqueue(uid, opts) {
     // A question's running session, sent by the phone (the server never holds `active`). Kept on
     // the in-memory job only, never in the user's file; the payload builder bounds it.
     today: (opts.kind === 'ask' || opts.kind === 'adapt') && opts.today && typeof opts.today === 'object' ? opts.today : null,
+    // My Gym: the app's weekly-sets-per-muscle table for a plan, a review or a question (the payload
+    // builder bounds it, core/progression-data.js cleanVolume). In-memory only, like `today`. A
+    // scheduled review has no app behind it and goes without; it still reads `muscles`.
+    volume: ['create', 'review', 'ask'].includes(opts.kind) && Array.isArray(opts.volume) ? opts.volume.slice(0, 24) : null,
     // An adapt job's exercise and reason, and the session it belongs to (so the phone can tell a
     // proposal for this workout from one for a workout that has ended).
     focus: opts.kind === 'adapt' && opts.focus && typeof opts.focus === 'object' ? { entry: opts.focus.entry, reason: opts.focus.reason } : null,
@@ -354,6 +358,7 @@ async function execute(job) {
     workoutId: job.workoutId,
     today: job.today,
     focus: job.focus,
+    volume: job.volume,
     // The app says which language it is in. A scheduled review has no app behind it: a profile
     // that never picked a language then gets the instance's DEFAULT_LANG, like its screens do.
     lang: job.lang || (S.langAuto === true ? payloadLib.langTag(process.env.DEFAULT_LANG) : null),

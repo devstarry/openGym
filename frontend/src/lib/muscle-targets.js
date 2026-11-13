@@ -71,6 +71,23 @@ export function weeklyMuscleSets(S, today = todayISO()) {
   })
 }
 
+/**
+ * The same table over the last `days` days up to and including `today` (7 by default): what a
+ * weekly review reads (My Gym's AI Coach, the review card), so a review on a Monday is not looking at
+ * an empty week. Dates are compared as 'YYYY-MM-DD', so no clock change moves the window.
+ */
+export function recentMuscleSets(S, today = todayISO(), days = 7) {
+  const end = Date.UTC(+today.slice(0, 4), +today.slice(5, 7) - 1, +today.slice(8, 10))
+  const from = new Date(end - (Math.max(1, days) - 1) * 86400000).toISOString().slice(0, 10)
+  const workouts = (S?.workouts || []).filter(w => w && typeof w.d === 'string' && w.d.slice(0, 10) >= from && w.d.slice(0, 10) <= today)
+  const load = loadOfWorkouts(workouts)
+  return TARGET_MUSCLES.map(slug => {
+    const [lo, hi] = targetOf(S, slug)
+    const sets = roundSets(load[slug] || 0)
+    return { slug, name: MUSCLE_NAME[slug], sets, lo, hi, status: statusOf(sets, [lo, hi]) }
+  })
+}
+
 /** The muscle with the most room left this week (furthest under its low end), or null when none is. */
 export function mostRoom(rows) {
   const below = (rows || []).filter(r => r.status === 'below')

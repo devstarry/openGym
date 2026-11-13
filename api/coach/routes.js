@@ -82,7 +82,8 @@ export function coachRoutes({ json, readBody, readSession, requireAdmin }) {
           kind: 'create',
           intake: body.intake || null,
           lang: body.lang,
-          refine: body.refine ? String(body.refine).slice(0, cfgStore.MAX_MESSAGE_LEN_CEILING) : null
+          refine: body.refine ? String(body.refine).slice(0, cfgStore.MAX_MESSAGE_LEN_CEILING) : null,
+          volume: body.volume
         });
         json(res, 202, { job });
       } catch (e) { failEnqueue(res, e); }
@@ -95,7 +96,8 @@ export function coachRoutes({ json, readBody, readSession, requireAdmin }) {
         const job = jobs.enqueue(user.id, {
           kind: 'review',
           lang: body.lang,
-          note: body.note ? String(body.note).slice(0, cfgStore.MAX_MESSAGE_LEN_CEILING) : null
+          note: body.note ? String(body.note).slice(0, cfgStore.MAX_MESSAGE_LEN_CEILING) : null,
+          volume: body.volume
         });
         json(res, 202, { job });
       } catch (e) { failEnqueue(res, e); }
@@ -123,7 +125,8 @@ export function coachRoutes({ json, readBody, readSession, requireAdmin }) {
           kind: 'ask',
           lang: body.lang,
           note: text.slice(0, cfgStore.MAX_MESSAGE_LEN_CEILING),
-          today: body.today && typeof body.today === 'object' && !Array.isArray(body.today) ? body.today : null
+          today: body.today && typeof body.today === 'object' && !Array.isArray(body.today) ? body.today : null,
+          volume: body.volume
         });
         json(res, 202, { job });
       } catch (e) { failEnqueue(res, e); }

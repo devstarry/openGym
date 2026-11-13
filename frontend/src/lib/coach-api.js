@@ -12,6 +12,10 @@ import { MOBILE } from './mobile.js'
 import { t, tn, getLang } from './i18n.js'
 import { useStore } from '../store/useStore.js'
 import { todayForCoach } from './coach-context.js'
+import { recentMuscleSets } from './muscle-targets.js'
+// My Gym: the weekly-sets-per-muscle table the app shows, over the last 7 days, sent with a plan, a
+// review and a question so the Coach reads the same numbers (the server keeps it on the job only).
+const volume = () => recentMuscleSets(S())
 import { useUI } from '../store/useUI.js'
 
 const POLL_MS = 3000        // a job is running: often enough to feel live
@@ -83,17 +87,17 @@ export async function ensureAiConsent() {
 const asked = fn => async (...a) => { await ensureAiConsent(); return fn(...a) }
 
 export const coachStatus = async () => DEMO ? (await demo()).demoStatus() : LOCAL() ? (await local()).localStatus() : api('/api/coach/status')
-const _requestReview = async note => DEMO ? (await demo()).demoReview(S()) : LOCAL() ? (await local()).localReview(S(), note) : api('/api/coach/review', { method: 'POST', body: JSON.stringify({ note: note || '', lang: getLang() }) })
+const _requestReview = async note => DEMO ? (await demo()).demoReview(S()) : LOCAL() ? (await local()).localReview(S(), note) : api('/api/coach/review', { method: 'POST', body: JSON.stringify({ note: note || '', lang: getLang(), volume: volume() }) })
 export const requestReview = (...a) => asked(_requestReview)(...a).then(track)
-const _requestPlan = async intake => DEMO ? (await demo()).demoPlan(S(), intake) : LOCAL() ? (await local()).localPlan(S(), intake) : api('/api/coach/plan', { method: 'POST', body: JSON.stringify({ intake, lang: getLang() }) })
+const _requestPlan = async intake => DEMO ? (await demo()).demoPlan(S(), intake) : LOCAL() ? (await local()).localPlan(S(), intake) : api('/api/coach/plan', { method: 'POST', body: JSON.stringify({ intake, lang: getLang(), volume: volume() }) })
 export const requestPlan = (...a) => asked(_requestPlan)(...a).then(track)
-const _refinePlan = async text => DEMO ? (await demo()).demoRefine(S()) : LOCAL() ? (await local()).localRefine(S(), text) : api('/api/coach/plan', { method: 'POST', body: JSON.stringify({ refine: text, lang: getLang() }) })
+const _refinePlan = async text => DEMO ? (await demo()).demoRefine(S()) : LOCAL() ? (await local()).localRefine(S(), text) : api('/api/coach/plan', { method: 'POST', body: JSON.stringify({ refine: text, lang: getLang(), volume: volume() }) })
 export const refinePlan = (...a) => asked(_refinePlan)(...a).then(track)
 const _requestDebrief = async workoutId => DEMO ? (await demo()).demoDebrief(S(), workoutId) : LOCAL() ? (await local()).localDebrief(S(), workoutId) : api('/api/coach/debrief', { method: 'POST', body: JSON.stringify({ workoutId: workoutId || null, lang: getLang() }) })
 export const requestDebrief = (...a) => asked(_requestDebrief)(...a).then(track)
 // A question in the chat, answered in words (the `ask` job). The session running here goes along
 // (lib/coach-context.js): the server never holds it.
-const _askCoach = async text => DEMO ? (await demo()).demoAsk(S(), text) : LOCAL() ? (await local()).localAsk(S(), text, todayForCoach(S())) : api('/api/coach/ask', { method: 'POST', body: JSON.stringify({ text, today: todayForCoach(S()), lang: getLang() }) })
+const _askCoach = async text => DEMO ? (await demo()).demoAsk(S(), text) : LOCAL() ? (await local()).localAsk(S(), text, todayForCoach(S())) : api('/api/coach/ask', { method: 'POST', body: JSON.stringify({ text, today: todayForCoach(S()), lang: getLang(), volume: volume() }) })
 export const askCoach = (...a) => asked(_askCoach)(...a).then(track)
 // "Ask the Coach" on an exercise mid-workout (the `adapt` job): `entry` is its index in the running
 // session, `reason` one of pain/busy/short/great/tired/other, `text` optional. The session goes
