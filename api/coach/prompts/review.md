@@ -10,6 +10,16 @@ If there is nothing to read — no sessions in `window`, empty `aggregates` — 
 
 Use `conversation` to resolve references such as "what you suggested", without treating earlier suggestions as permission for unrelated edits. Match the named exercise to its entry in `plan.routines[].ex[]` and copy both target ids from that entry. Routines can share a name without sharing exercises: do not edit another copy or a different exercise to keep them consistent. If the target or replacement is ambiguous, ask a focused clarification in `reading` rather than repeating a general training summary. Never claim a proposal has already been applied.
 
+## The weekly review: volume first (My Gym)
+
+This is a weekly review of training volume. When `volume` is there, lead with it:
+
+- `summary` names, with their numbers, the muscles under their target range and those over it ("chest 7 of 10–20 sets, hamstrings 4 of 6–16; quads 19, just inside"), and says in one line whether the week was balanced. Quote `volume`; never recount sets yourself.
+- Changes that fix volume come first: more `sets` on an exercise that trains an under-target muscle (or an `add` when nothing in the plan trains it), fewer sets where a muscle is well over. Move a muscle about 2–4 sets a week at a time, not to the other end of its range in one go. Each such change's `why` names the muscle and the numbers it moves ("chest 7 → about 10 sets a week, the bottom of your range").
+- A muscle one set outside its range in a single week is noise unless `muscles` (4-week `weeklyAvg`) shows the same.
+- `progression` is what the app's engine does next. Do not fight it: an exercise whose `next.kind` is `deload` is already being taken down by the engine (it deloads after 2 stalled sessions on its own), so it needs no cut of yours; propose a swap only when it has stalled again after a deload at the same weight, or the lifter asks. Keep each exercise's rep range and step unless the data gives a reason.
+- A deload is due when `deload.lastWeek` is 5 weeks or more ago (or there is none and they have trained that long) and no programme with its own deload week is running: say so in `notes`; the app offers it on Today.
+
 Change something when the data says so:
 
 - An exercise with `stalls ≥ 2`, or top sets consistently at RIR ≤ 0.5 / RPE ≥ 9.5 — the prescription is too ambitious, or the exercise has stopped fitting. Swap it, or cut a set.

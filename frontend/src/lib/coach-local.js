@@ -254,6 +254,8 @@ async function run(S, kind, opts, d, adapter) {
     ...(kind === 'debrief' ? { workout: workoutMetaOf(S, opts.workoutId) } : {}),
     ...(kind === 'ask' || kind === 'adapt' ? { prev: waitingProposal((await loadCoachDevice()).pending) } : {}),
     ...(kind === 'adapt' ? { activeId: opts.activeId || null, focus: payload.focus } : {}),
+    // My Gym: the volume table the review was given, so its card shows the numbers the Coach read.
+    ...(kind === 'review' && payload.volume ? { volume: payload.volume } : {}),
     ...attempt.result
   }
   await saveCoachDevice({ pending, ...(kind === 'review' ? { reviewedAt: Date.now() } : {}) })

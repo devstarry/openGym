@@ -39,6 +39,7 @@ import { confirmSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
 import { glyphOf } from '../lib/glyphs.js'
 import LineChart from '../components/LineChart.jsx'
+import { MUSCLE_NAME } from '../lib/muscles.js'
 import { Button, Check, Switch, Section, Row, SelectRow } from '../components/ui.jsx'
 import '../coach.css'
 
@@ -454,6 +455,7 @@ function ReviewCard({ p, S, update, toast, refresh }) {
         </p>}
       </div>
 
+      <VolumeTable rows={p.volume} />
       <Insights S={S} window={marked.evidence} />
 
       {marked.changes.map(c => {
@@ -546,6 +548,28 @@ function Insights({ S, window: win, compact }) {
         <span className="ins-bar-v">{b.sets}</span>
       </div>)}
     </div>}
+  </div>
+}
+// My Gym: the weekly sets per muscle the review read (the app worked them out, the Coach was handed
+// them): each main muscle's hard sets over the 7 days against its own target range, the range drawn
+// as a band on the bar. The numbers are the app's, not the model's.
+const VOL_STATUS = { below: 'Under', in: 'In range', above: 'Over' }
+export function VolumeTable({ rows }) {
+  const list = (Array.isArray(rows) ? rows : []).filter(r => r && Array.isArray(r.target))
+  if (!list.length) return null
+  const top = Math.max(1, ...list.map(r => Math.max(r.sets || 0, r.target[1] || 0)))
+  const pct = n => Math.max(0, Math.min(100, Math.round((n / top) * 100)))
+  return <div className="ins volume-table">
+    <div className="ins-h"><span>{t('Weekly sets per muscle')}</span><span className="dim">{t('last 7 days · target')}</span></div>
+    {list.map(r => <div key={r.muscle} className={'vol-row ' + (r.status || '')}>
+      <span className="vol-name">{t(MUSCLE_NAME[r.muscle] || r.muscle)}</span>
+      <span className="vol-bar" aria-hidden="true">
+        <span className="vol-band" style={{ left: pct(r.target[0]) + '%', width: Math.max(2, pct(r.target[1]) - pct(r.target[0])) + '%' }} />
+        <i style={{ width: Math.max(2, pct(r.sets || 0)) + '%' }} />
+      </span>
+      <span className="vol-num">{fmtNum(r.sets || 0)}<span className="dim"> / {r.target[0]}–{r.target[1]}</span></span>
+      {r.status && <span className={'tag vol-tag ' + r.status}>{t(VOL_STATUS[r.status])}</span>}
+    </div>)}
   </div>
 }
 const Tile = ({ v, l }) => <div className="ins-tile"><div className="ins-tile-v">{v}</div><div className="ins-tile-l">{l}</div></div>
@@ -669,6 +693,7 @@ function ProposalDetail({ entry, S }) {
     </div>
 
     {kind === 'review' && <>
+      <VolumeTable rows={entry.volume} />
       <Insights S={S} window={entry.evidence} />
       {(entry.decisions || []).map(d => <ChangeRow key={d.id} c={d} S={S} stale={d.status === 'stale'}
         badge={<span className={'recap-state ' + (d.status === 'accepted' ? 'yes' : 'no')}>{d.status === 'accepted' ? t('Accepted') : d.status === 'stale' ? t('Expired') : t('Declined')}</span>} />)}

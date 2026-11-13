@@ -663,11 +663,16 @@ export function applyChangeSet(s, proposal, acceptedIds) {
   const logId = appendLog(s, {
     kind: 'review', at: Date.now(), proposalId: proposal.id,
     summary: proposal.summary || '', evidence: proposal.evidence || null,
-    notes: proposal.notes || [], decisions: [...applied, ...rejected]
+    notes: proposal.notes || [], decisions: [...applied, ...rejected],
+    ...volumeOf(proposal)
   })
   coachOf(s).lastReview = { at: Date.now() }
   return { applied: applied.length, rejected: rejected.length, logId }
 }
+
+// My Gym: the weekly-sets-per-muscle table a review was given (api/coach/core/progression-data.js
+// cleanVolume), kept with its log entry so the card in the history shows the numbers it read.
+const volumeOf = p => (Array.isArray(p?.volume) && p.volume.length ? { volume: p.volume.slice(0, 24) } : {})
 
 /** Turned down whole, or expired: recorded so a later review knows not to re-propose it. */
 export function recordDismissal(s, proposal) {
@@ -675,6 +680,7 @@ export function recordDismissal(s, proposal) {
     kind: proposal.kind === 'create' ? 'create' : 'review', at: Date.now(), proposalId: proposal.id,
     summary: proposal.summary || '', dismissed: true,
     evidence: proposal.evidence || null, notes: proposal.notes || [],
+    ...volumeOf(proposal),
     ...(proposal.bundle ? { bundle: lightBundle(proposal.bundle), iteration: proposal.iteration || 1 } : {}),
     decisions: (proposal.changes || []).map(c => decisionOf(c, 'rejected'))
   })

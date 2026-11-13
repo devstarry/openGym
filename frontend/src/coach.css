@@ -235,6 +235,20 @@
 .ins-bar{display:grid;grid-template-columns:76px 1fr 28px;align-items:center;gap:8px;padding:4px 0}
 .ins-bar-l{font-size:12.5px;color:var(--label-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ins-bar-t{height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+/* My Gym: weekly sets per muscle against the target range (views/CoachChat.jsx VolumeTable). The
+   target is a faint band on the track; the bar is the sets; the tag says under, in range or over. */
+.volume-table{margin:12px 0 4px}
+.vol-row{display:grid;grid-template-columns:84px 1fr auto auto;align-items:center;gap:8px;padding:5px 0}
+.vol-name{font-size:12.5px;color:var(--label-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vol-bar{position:relative;height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.vol-band{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--acc) 22%,transparent)}
+.vol-bar i{position:relative;display:block;height:100%;border-radius:99px;background:var(--label-3)}
+.vol-row.in .vol-bar i{background:var(--acc)}
+.vol-row.above .vol-bar i{background:var(--orange)}
+.vol-num{font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.vol-tag{font-size:var(--fs-caption2)}
+.vol-tag.in{background:var(--acc-soft);color:var(--acc-ink)}
+.vol-tag.above{color:var(--orange);background:color-mix(in srgb,var(--orange) 16%,transparent)}
 .ins-bar-t i{display:block;height:100%;border-radius:99px;background:var(--acc);transition:width var(--med) var(--ease)}
 .ins-bar-v{font-size:var(--fs-caption);font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
 .ins-cmp{font-size:12.5px;color:var(--label-2);line-height:1.5;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;padding:0 2px}

@@ -409,6 +409,8 @@ async function execute(job) {
       ...(job.trigger === 'scheduled' ? { trigger: 'scheduled' } : {}),
       // A debrief names the session it read, so the card can show it after the fact.
       ...(job.kind === 'debrief' ? { workout: payloadLib.workoutMeta(S, job.workoutId) } : {}),
+      // My Gym: the volume table the review was given (when the app sent one), for its card.
+      ...(job.kind === 'review' && payload.volume ? { volume: payload.volume } : {}),
       ...(job.kind === 'ask' || job.kind === 'adapt' ? { prev: waitingProposal(readUser(job.uid).pending) } : {}),
       ...(job.kind === 'adapt' ? { activeId: job.activeId, focus: payload.focus } : {}),
       ...attempt.result
