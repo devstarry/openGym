@@ -31,7 +31,7 @@ export async function attemptOnce({ adapter, cfg, kind, payload, model, timeoutM
   const r = await adapter.invoke({
     cfg,
     prompt: split ? parts.user : parts.system + '\n\n---\n\n' + parts.user,
-    ...(split ? { system: parts.system, schema: SCHEMAS[parts.task] || null } : {}),
+    ...(split ? { system: parts.system, schema: SCHEMAS[parts.task] || null, task: parts.task } : {}),
     model: model || null, timeoutMs, ...invokeOpts
   });
 

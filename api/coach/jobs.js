@@ -39,7 +39,7 @@ const COACH_DIR = path.join(DATA, 'coach');
 
 // Five minutes by default. A local model on a small CPU box can legitimately need more; a
 // cloud API that needs more has a problem. COACH_JOB_TIMEOUT_MS overrides, never below one minute.
-export const TIMEOUT_MS = Math.max(60000, +process.env.COACH_JOB_TIMEOUT_MS || 5 * 60000);
+export const TIMEOUT_MS = Math.max(60000, +process.env.COACH_JOB_TIMEOUT_MS || 10 * 60000);
 const MAX_CONCURRENT = 2;          // these are minutes-scale jobs on often-single-core boxes
 const PENDING_DAYS = 14;           // FR-33
 const HISTORY_MAX = 20;
