@@ -172,6 +172,33 @@ plan itself is short. If a job fails with *"the answer was cut off at the output
 it; keep it within the model's own output limit (65536 on most current hosted models, lower on a
 small local one).
 
+#### My Gym: the training block, the weekly review and the Anthropic request
+
+This fork extends the Coach in three ways (personal use, Anthropic key on the phone).
+
+- **A plan comes with its training block.** The intake asks how long a block runs (4, 5 or 6
+  weeks). The plan's exercises use double progression with a rep range and a weight step, and
+  the plan carries a `programme`: one week-wide RPE per week (rising from about 7 to 9) and a
+  deload week at the end. `validatePlan` checks it and puts it in the plan file
+  (`programme_fmt: 1`). Applying the plan brings the block in, never started; Undo removes it.
+  While a block runs, the five-weekly deload offer on Today stays quiet.
+- **The progression engine's data goes along.** `api/coach/core/rir-rules.js` (the single copy
+  of the RIR and deload rules) and `progression-data.js` add `progression` (each exercise's
+  rule, range, step, last session and stalls, and the next suggestion), `deload` and `volume` to
+  the payload. The volume table (weekly sets per muscle over the last 7 days, against its range)
+  is worked out by the app (`recentMuscleSets` in `lib/muscle-targets.js`), never by the model.
+- **The weekly review leads with volume.** The review card shows the table it was given, and
+  changes are aimed at muscles under or over their range. Nothing is applied until you approve
+  each change; the table is kept with the log entry.
+- **The Anthropic request** (`api/coach/core/adapters/anthropic.js`): Claude Opus 5.5 by
+  default; effort `high` for plans, revisions and reviews, `low` for questions and mid-workout
+  changes; plans, questions, debriefs and mid-workout changes held to their JSON schema while
+  written (the review is not, because a change's `before`/`after` can be any value); refusal
+  fallback on (`anthropic-beta: server-side-fallback-2026-07-01`, `fallbacks: "default"`); at
+  least 32000 output tokens for a plan, and a 10-minute job timeout. The key is entered in the
+  app (Profile → AI Coach → Bring my own API key) and kept in the phone's secure storage, never
+  in the code.
+
 ### With a runtime in the container (Claude Agent SDK, Codex CLI)
 
 **1. Build the image that has an AI runtime in it.** The default image deliberately has none:
