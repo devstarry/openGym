@@ -1233,6 +1233,9 @@ button.whdr-gym{color:var(--acc-ink);cursor:pointer}
   background:rgba(0,0,0,.55);color:#fff;--icon-stroke:2.4;
 }
 .exhd{align-items:center}
+.exname-btn{all:unset;box-sizing:border-box;display:block;cursor:pointer;color:inherit;text-align:left;-webkit-tap-highlight-color:transparent}
+.exname-btn:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
+.exname-btn:active{opacity:.6}
 .wprog{height:4px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-bottom:16px}
 .wprog i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width var(--med) var(--ease)}
 /* The bar with the session's volume at its end (#774): 12 px tall where the bar is 4, so it takes

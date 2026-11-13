@@ -9,7 +9,7 @@ import { buildCombinedEntries } from '../lib/session-merge.js'
 import { buildCompletedWorkout } from '../lib/finish-workout.js'
 import { isWarmupRow } from '../lib/workout-model.js'
 import { discardedFor } from '../lib/watch-sync.js'
-import { finishWorkout, finishWorkoutSheet } from '../sheets.jsx'
+import { finishWorkout, finishWorkoutSheet, exerciseDetailSheet } from '../sheets.jsx'
 import { menuItemsOf } from '../lib/menu-items.js'
 
 // A menu's actions in order, whether it came as one list or in groups (menuSheet `sections`).
@@ -604,6 +604,19 @@ describe('set ticks for screen readers', () => {
     await mount([exercise('named-ticks', [false, false])])
     const labels = [...container.querySelectorAll('[role="checkbox"]')].map(c => c.getAttribute('aria-label'))
     expect(labels).toEqual(['Set 1 done', 'Set 2 done'])
+  })
+})
+
+// My Gym: the exercise name is the way to its how-to, one tap instead of ⋯ → More → How to do it.
+describe('tapping the exercise name', () => {
+  it.each([['list', {}], ['focus', { active: { workoutView: 'focus' } }]])('opens the how-to sheet for that exercise (%s view)', async (_v, overrides) => {
+    vi.mocked(exerciseDetailSheet).mockClear()
+    await mount([exercise('plain-bench', [false])], 0, overrides)
+    const name = container.querySelector('button.exname-btn')
+    expect(name.getAttribute('aria-label')).toMatch(/^How to do /)
+    await click(name)
+    expect(exerciseDetailSheet).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(exerciseDetailSheet).mock.calls[0][0].id).toBe('plain-bench')
   })
 })
 
