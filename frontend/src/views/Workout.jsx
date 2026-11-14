@@ -141,7 +141,7 @@ const RTL_LETTER = /[֐-ࣿיִ-﷿ﹰ-﻿]/
 // enough to turn over, far shorter than the rest the set earns once both sides are held.
 const SWITCH_SIDES_SEC = 10
 
-function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSide, onField, onAddSet, onRemoveSet, onAddWarmup, onKeepWarmups, onAskCoach, onRemoveSetAt, onCopySetAt, onStartTimed, onPairPrev, onPairNext, onSetRowRef, onProgressionSettings, onRest, onNoProg, routineUpdate, onSwap, onSwapBackup, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onRemoveExercise, busy }) {
+function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSide, onRated, onField, onAddSet, onRemoveSet, onAddWarmup, onKeepWarmups, onAskCoach, onRemoveSetAt, onCopySetAt, onStartTimed, onPairPrev, onPairNext, onSetRowRef, onProgressionSettings, onRest, onNoProg, routineUpdate, onSwap, onSwapBackup, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onRemoveExercise, busy }) {
   // The block reads the state as its exercise sees it (lib/ex-unit.js): in the exercise's own
   // weight unit when it has one (#657), so its rows, steppers, plates, owned weights, "last time"
   // and records all speak that unit. Every change goes through inEntryUnit or the parent's
@@ -442,12 +442,16 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
     if (out.r !== (Number(nx.r) || 0)) onField(j, 'r', out.r)
     setHintAt({ j, text: hintText(out, nx) })
   }
-  const rate = (i, v) => { accept(i); onField(i, 'rir', v); setRateAt(null); suggestNext(i, v) }
+  // My Gym: the rating, or skipping it, is the end of the set: the screen moves on to the next
+  // exercise, or brings up Finish, only then (onRated; the parent's afterRating).
+  const rate = (i, v) => { accept(i); onField(i, 'rir', v); setRateAt(null); suggestNext(i, v); onRated?.(i) }
+  const skipRating = i => { setRateAt(null); onRated?.(i) }
   const tick = i => {
     const s0 = liveRow(i)
     const was = !!s0?.done
-    onToggle(i)
-    if (!was && rirLog && s0 && s0[col3.f] == null && !isWarmupRow(s0)) setRateAt(i)
+    const asks = !was && rirLog && s0 && s0[col3.f] == null && !isWarmupRow(s0)
+    onToggle(i, undefined, { rating: !!asks })
+    if (asks) setRateAt(i)
     else if (rateAt === i) setRateAt(null)
     if (hintAt?.j === i) setHintAt(null)
   }
@@ -455,7 +459,7 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
     <span className="rirstrip-q">{t('Reps left?')}</span>
     {[0, 1, 2, 3, 4].map(v => <button key={v} type="button" className="rirchip" style={{ '--bc': effortColor(v) }}
       aria-label={v === 4 ? t('4 or more reps left') : t('{0} reps left', v)} onClick={() => rate(i, v)}>{v === 4 ? '4+' : v}</button>)}
-    <button type="button" className="iconbtn" aria-label={t('Skip rating')} onClick={() => setRateAt(null)}><Icon name="xmark" /></button>
+    <button type="button" className="iconbtn" aria-label={t('Skip rating')} onClick={() => skipRating(i)}><Icon name="xmark" /></button>
   </div> : null)
   // Last time's matching set, beside each row (the "Last time" column): warm-ups against the
   // warm-ups, work sets against the work sets, by their place in each. Only with the +/- buttons
@@ -697,7 +701,7 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
     const pickEffort = nv => {
       accept(i)
       onField(i, col.f, nv)
-      if (rateAt === i) setRateAt(null)
+      if (rateAt === i) { setRateAt(null); if (nv != null) onRated?.(i) }
       if (nv != null) suggestNext(i, rirOf({ [col.f]: nv }))
       if (nv == null) return
       const fresh = useStore.getState().S.active?.entries[entryIdx]?.sets[i]
@@ -1205,6 +1209,8 @@ function ActiveWorkout() {
   // The session's own choice (the Layout menu) wins over the saved one (Settings → Workout), the
   // way the layout itself does, so someone who always wants it switches it on once.
   const collapseOn = listMode && !!(A.collapseCompleted ?? S.collapseCompleted)
+  // My Gym: what waits on the closing set's rating (the next card, or Finish): { idx, i, run }.
+  const afterRating = useRef(null)
   // Cards and Focus: Prev, Next and the swipe jump over finished exercises (#523).
   const skipDone = !listMode && S.skipCompleted === true
   // Cards and Focus: when the rest after a timed exercise's last set runs out, the next exercise
@@ -1652,7 +1658,8 @@ function ActiveWorkout() {
     canMoveDown: canMoveActiveWorkoutEntry(A, idx, 1),
     onRemoveExercise: () => confirmRemoveExercise(idx),
     busy: working,
-    onToggle: (i, onFocusProgress) => checkedToggle(idx, i, undefined, { onFocusProgress }),
+    onToggle: (i, onFocusProgress, extra) => checkedToggle(idx, i, undefined, { onFocusProgress, ...extra }),
+    onRated: i => { const p = afterRating.current; if (p && p.idx === idx && p.i === i) { afterRating.current = null; p.run() } },
     onToggleSide: (i, side, onFocusProgress) => checkedToggle(idx, i, side, { onFocusProgress }),
     onField: (i, f, v) => setField(idx, i, f, v),
     onMutateSet: (i, fn) => mutEntry(idx, entry => { entry.sets[i] = fn(entry.sets[i]) }),
@@ -2065,7 +2072,7 @@ function ActiveWorkout() {
   // `quiet`: the hold that ticks this set has just ended with the chime and its buzz pattern
   // (store/useUI.js). The tick's own beep would sound over the chime's first note and clip it,
   // and its short buzz would cut the pattern off: a new vibrate call replaces the running one.
-  const toggle = (idx, i, side, { quiet = false, onFocusProgress } = {}) => {
+  const toggle = (idx, i, side, { quiet = false, onFocusProgress, rating = false } = {}) => {
     // Ticking a set ends the typing in that row: drop the keyboard before the rest timer, the
     // effort sheet or the next exercise moves in. WebKit keeps the input focused across the
     // button tap, and a focused input with its keyboard gone is what leaves the tab bar
@@ -2102,7 +2109,11 @@ function ActiveWorkout() {
       }
     }, true)
     if (editing) return
-    if (workoutDone) workoutCompleteSheet()
+    // A set unticked takes back whatever was waiting on its rating.
+    if (!checked) afterRating.current = null
+    // The closing set still to be rated: Finish comes up once it is (or the rating is skipped).
+    if (workoutDone && rating) afterRating.current = { idx, i, run: () => workoutCompleteSheet() }
+    else if (workoutDone) workoutCompleteSheet()
     else if (exJustDone && cardioEntry) useUI.getState().toast(t('Cardio logged'))
     else if (exJustDone && m === 'time') useUI.getState().toast(t('Hold logged'))
 
@@ -2161,6 +2172,14 @@ function ActiveWorkout() {
       if (collapseOn && freshUnitDone && nextUnit && freshUnit?.includes(fresh.cur)) {
         revealCur.current = true
         update(s => { if (s.active) s.active.cur = nextUnit[0] })
+      }
+      // My Gym: in Cards the next exercise's card comes up once this one is done: after the
+      // closing set's rating when it asks for one, at once when it does not. Only while you are
+      // still on this exercise; a card you have moved to yourself stays.
+      if (workoutView === 'cards' && freshUnitDone && nextUnit && freshUnit?.includes(fresh.cur)) {
+        const go = () => update(s => { if (s.active && freshUnit.includes(s.active.cur)) s.active.cur = nextUnit[0] })
+        if (rating) afterRating.current = { idx, i, run: go }
+        else go()
       }
 
       // Between the two sides of one timed per-side set (a side plank's left, then its right):

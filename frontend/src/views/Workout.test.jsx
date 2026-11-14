@@ -387,14 +387,14 @@ describe('Workout set completion flow', () => {
     expect(mocks.startRest).not.toHaveBeenCalled()
   })
 
-  it('auto-captures a completed weighted exercise without prompting, leaving navigation to Next', async () => {
+  it('auto-captures a completed weighted exercise without prompting, then moves on to the next card (My Gym)', async () => {
     await mount([exercise('plain-bench', [false]), exercise('next', [false])])
 
     await toggleSet(0)
 
     expect(mocks.S.active.entries[0].topW).toBe(60)
     expect(mocks.S.exWeights['plain-bench']).toBeUndefined()   // written at the finish, not while ticking
-    expect(mocks.S.active.cur).toBe(0)
+    expect(mocks.S.active.cur).toBe(1)
     expect(mocks.startRest).toHaveBeenCalledWith(90, expect.any(Number), { forSet: expect.any(Number) })
 
     await pressNext()
@@ -402,7 +402,7 @@ describe('Workout set completion flow', () => {
     expect(mocks.S.active.cur).toBe(1)
   })
 
-  it('auto-captures superset members without prompting, then leaves the completed unit for Next', async () => {
+  it('auto-captures superset members without prompting, then moves on to the next card (My Gym)', async () => {
     const group = 'superset-1'
     await mount([
       exercise('superset-a', [false], { sg: group }),
@@ -418,7 +418,7 @@ describe('Workout set completion flow', () => {
     await rerender()
     await toggleSet(1)
 
-    expect(mocks.S.active.cur).toBe(1)
+    expect(mocks.S.active.cur).toBe(2)
     expect(mocks.startRest).toHaveBeenCalledWith(90, expect.any(Number), { forSet: expect.any(Number) })
 
     await pressNext()
@@ -442,7 +442,7 @@ describe('Workout set completion flow', () => {
 
       await toggleSet(0)
 
-      expect(mocks.S.active.cur).toBe(0)
+      expect(mocks.S.active.cur).toBe(1)
       expect(mocks.startRest).toHaveBeenCalledTimes(1)
       expect(mocks.startRest).toHaveBeenCalledWith(expect.any(Number), 0, { forSet: 0 })
     },
@@ -463,12 +463,12 @@ describe('Workout set completion flow', () => {
 
     await toggleSet(1)
 
-    expect(mocks.S.active.cur).toBe(1)
+    expect(mocks.S.active.cur).toBe(2)
     expect(mocks.startRest).toHaveBeenCalledTimes(1)
     expect(mocks.startRest).toHaveBeenCalledWith(expect.any(Number), 1, { forSet: 0 })
   })
 
-  it('leaves the completed ordinary exercise selected and still rests before the next exercise\'s warm-up (#853)', async () => {
+  it('moves on from the completed ordinary exercise and still rests before the next exercise\'s warm-up (#853)', async () => {
     await mount([
       exercise('current-loaded', [false]),
       exercise('next', [false, false], {
@@ -482,7 +482,7 @@ describe('Workout set completion flow', () => {
 
     await toggleSet(0)
 
-    expect(mocks.S.active.cur).toBe(0)
+    expect(mocks.S.active.cur).toBe(1)
     expect(mocks.startRest).toHaveBeenCalledTimes(1)
   })
 
@@ -530,7 +530,7 @@ describe('Workout set completion flow', () => {
     expect(mocks.startRest).not.toHaveBeenCalled()
   })
 
-  it('leaves a completed superset selected without opening a top-weight sheet', async () => {
+  it('moves on from a completed superset without opening a top-weight sheet', async () => {
     const group = 'superset-1'
     await mount([
       exercise('superset-a', [true, true, true], { sg: group, asked: true }),
@@ -539,11 +539,11 @@ describe('Workout set completion flow', () => {
     ], 1)
     await toggleSet(5)
 
-    expect(mocks.S.active.cur).toBe(1)
+    expect(mocks.S.active.cur).toBe(2)
     expect(mocks.startRest).toHaveBeenCalledWith(90, expect.any(Number), { forSet: expect.any(Number) })
   })
 
-  it('does not auto-select an unfinished superset after completing an ordinary exercise', async () => {
+  it('moves on to an unfinished superset after completing an ordinary exercise', async () => {
     await mount([
       exercise('current-hold', [false], { asked: true, target: { mode: 'time', sec: 30, weight: 0 } }),
       exercise('already-done', [true], { asked: true }),
@@ -553,13 +553,13 @@ describe('Workout set completion flow', () => {
 
     await toggleSet(0)
 
-    expect(mocks.S.active.cur).toBe(0)
+    expect(mocks.S.active.cur).toBe(2)
     expect(mocks.workoutCompleteSheet).not.toHaveBeenCalled()
     expect(mocks.toast).toHaveBeenCalledWith('Hold logged')
     expect(mocks.startRest).toHaveBeenCalledWith(90, expect.any(Number), { forSet: expect.any(Number) })
   })
 
-  it('does not auto-select earlier unfinished work after completing an ordinary exercise', async () => {
+  it('goes back to earlier unfinished work after completing an ordinary exercise', async () => {
     await mount([
       exercise('pending-earlier', [false], { asked: true }),
       exercise('current-hold', [false], { asked: true, target: { mode: 'time', sec: 30, weight: 0 } }),
@@ -567,12 +567,12 @@ describe('Workout set completion flow', () => {
 
     await toggleSet(0)
 
-    expect(mocks.S.active.cur).toBe(1)
+    expect(mocks.S.active.cur).toBe(0)
     expect(mocks.workoutCompleteSheet).not.toHaveBeenCalled()
     expect(mocks.startRest).toHaveBeenCalledWith(90, expect.any(Number), { forSet: expect.any(Number) })
   })
 
-  it('leaves a completed ordinary exercise selected without declaring completion while work remains', async () => {
+  it('moves on from a completed ordinary exercise without declaring completion while work remains', async () => {
     await mount([
       exercise('current-loaded', [false]),
       exercise('pending', [false], { asked: true }),
@@ -581,7 +581,7 @@ describe('Workout set completion flow', () => {
     await toggleSet(0)
 
     expect(mocks.workoutCompleteSheet).not.toHaveBeenCalled()
-    expect(mocks.S.active.cur).toBe(0)
+    expect(mocks.S.active.cur).toBe(1)
     expect(mocks.startRest).toHaveBeenCalledWith(90, expect.any(Number), { forSet: expect.any(Number) })
   })
 
@@ -620,6 +620,48 @@ describe('tapping the exercise name', () => {
   })
 })
 
+// My Gym: with RIR logged, the closing set of an exercise is finished by its rating. Only then
+// does the next card come up, or, on the last exercise, the Finish sheet.
+describe('the rating ends the exercise', () => {
+  const strip = () => container.querySelector('.rirstrip')
+  const chip = label => container.querySelector(`.rirstrip button[aria-label="${label}"]`)
+  beforeEach(() => mocks.workoutCompleteSheet.mockClear())
+
+  it('moves on to the next card only after the closing set is rated', async () => {
+    await mount([exercise('bench', [true, false]), exercise('row', [false])], 0, { effort: 'rir' })
+    await toggleSet(1)
+    expect(strip()).toBeTruthy()
+    expect(mocks.S.active.cur).toBe(0)
+    await click(chip('2 reps left'))
+    expect(mocks.S.active.cur).toBe(1)
+  })
+  it('skipping the rating moves on as well', async () => {
+    await mount([exercise('bench', [false]), exercise('row', [false])], 0, { effort: 'rir' })
+    await toggleSet(0)
+    expect(mocks.S.active.cur).toBe(0)
+    await click(container.querySelector('button[aria-label="Skip rating"]'))
+    expect(mocks.S.active.cur).toBe(1)
+  })
+  it('a set in the middle moves nothing', async () => {
+    await mount([exercise('bench', [false, false]), exercise('row', [false])], 0, { effort: 'rir' })
+    await toggleSet(0)
+    await click(chip('1 reps left'))
+    expect(mocks.S.active.cur).toBe(0)
+  })
+  it('the last exercise brings up Finish after its rating, not before', async () => {
+    await mount([exercise('bench', [true]), exercise('row', [false])], 1, { effort: 'rir' })
+    await toggleSet(0)
+    expect(mocks.workoutCompleteSheet).not.toHaveBeenCalled()
+    await click(chip('3 reps left'))
+    expect(mocks.workoutCompleteSheet).toHaveBeenCalledTimes(1)
+  })
+  it('without RIR, Finish comes up at once, as before', async () => {
+    await mount([exercise('bench', [true]), exercise('row', [false])], 1)
+    await toggleSet(0)
+    expect(mocks.workoutCompleteSheet).toHaveBeenCalledTimes(1)
+  })
+})
+
 describe('Workout add exercise flow', () => {
   it.each([
     ['freestyle', {}],
@@ -627,7 +669,7 @@ describe('Workout add exercise flow', () => {
       active: { routineId: 'routine-1' },
       routines: [{ id: 'routine-1', ex: [] }],
     }],
-  ])('inserts after the current unit and leaves the inserted exercise selected after completion in a %s session', async (_label, overrides) => {
+  ])('inserts after the current unit and moves on past the inserted exercise after completion in a %s session', async (_label, overrides) => {
     await mount([
       exercise('current', [true], { asked: true }),
       exercise('pending', [false], { asked: true }),
@@ -645,7 +687,7 @@ describe('Workout add exercise flow', () => {
     await toggleSet(0)
 
     expect(mocks.S.active.entries[1].sets[0].done).toBe(true)
-    expect(mocks.S.active.cur).toBe(1)
+    expect(mocks.S.active.cur).toBe(2)
     expect(mocks.workoutCompleteSheet).not.toHaveBeenCalled()
   })
 
@@ -2808,9 +2850,9 @@ describe('exercise chips at the top of the workout (#323)', () => {
     expect(chip(1).className).toBe('wchip partial cur')
     await toggleSet(1)
     await rerender()
-    expect(chip(1).className).toBe('wchip done cur')
-    // ticking never moved the marker, so the chip did not either
-    expect(mocks.S.active.cur).toBe(0)
+    expect(chip(1).className).toBe('wchip done')
+    // My Gym: the finished exercise hands the marker to the next one
+    expect(mocks.S.active.cur).toBe(1)
   })
 
   it('switches the exercise in Focus', async () => {
