@@ -352,6 +352,8 @@ export function restartedState(cur) {
   return s
 }
 
+export const BLUE_DONE = 'mygym_blue'
+
 function loadState() {
   try {
     const raw = localStorage.getItem(KEY)
@@ -709,9 +711,20 @@ export const useStore = create((set, get) => {
       pushTm = setTimeout(() => get().pushState(), 1500)
     }
   }
+  // My Gym: a profile saved before blue became the default still says 'lime' (openGym's old
+  // default), so the app came up green. Once per device, after boot has loaded the saved copy,
+  // it becomes blue; green picked on purpose after that stays green.
+  const myGymBlue = () => {
+    try {
+      if (localStorage.getItem(BLUE_DONE) === '1') return
+      localStorage.setItem(BLUE_DONE, '1')
+    } catch { return }
+    if (get().S.accent === 'lime') get().update(s => { s.accent = 'sky' })
+  }
   // Boot's last step: from here on changes push, and one made during boot goes now.
   const finishBoot = (extra = {}) => {
     set({ ready: true, ...extra })
+    myGymBlue()
     if (pushPending && get().user) {
       clearTimeout(pushTm)
       pushTm = setTimeout(() => get().pushState(), 1500)

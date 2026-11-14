@@ -158,7 +158,7 @@ public class OpenGymWidgetProvider extends AppWidgetProvider {
         } catch (Exception e) {
             // the default below
         }
-        return 0xFF30D158;
+        return 0xFF385DFF;
     }
 
     /** The weight goal's last weigh-ins as a thin line in the accent. */

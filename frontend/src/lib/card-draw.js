@@ -42,9 +42,9 @@ export function mixColor(a, b, p) {
   return `rgb(${ch(0)}, ${ch(1)}, ${ch(2)})`
 }
 
-export function cardPalette(style, acc = '#30d158') {
+export function cardPalette(style, acc = '#385dff') {
   const light = style === 'light'
-  const a = parseColor(acc) ? acc : '#30d158'
+  const a = parseColor(acc) ? acc : '#385dff'
   return light
     ? { bg: '#f2f2f7', surface: '#ffffff', tile: '#f2f2f7', label: '#000000', label2: '#6c6c70', acc: a, accText: mixColor(a, '#000000', 0.62), sep: '#e5e5ea', light: true }
     : { bg: '#000000', surface: '#1c1c1e', tile: '#2c2c2e', label: '#ffffff', label2: '#98989f', acc: a, accText: a, sep: '#38383a', light: false }
